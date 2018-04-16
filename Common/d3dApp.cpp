@@ -378,6 +378,7 @@ bool D3DApp::InitDirect3D()
 
 	UINT createDeviceFlags = 0;
 #if defined(DEBUG) || defined(_DEBUG)  
+	//在win10上，要注释掉该句代码
     //createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
