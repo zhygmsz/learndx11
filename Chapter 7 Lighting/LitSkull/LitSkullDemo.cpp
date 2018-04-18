@@ -283,8 +283,8 @@ void LitSkullApp::DrawScene()
 
 		// Draw the grid.
 		XMMATRIX world = XMLoadFloat4x4(&mGridWorld);
-		XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
 		XMMATRIX worldViewProj = world*view*proj;
+		XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
 
 		Effects::BasicFX->SetWorld(world);
 		Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
@@ -296,8 +296,8 @@ void LitSkullApp::DrawScene()
 
 		// Draw the box.
 		world = XMLoadFloat4x4(&mBoxWorld);
-		worldInvTranspose = MathHelper::InverseTranspose(world);
 		worldViewProj = world*view*proj;
+		worldInvTranspose = MathHelper::InverseTranspose(world);
 
 		Effects::BasicFX->SetWorld(world);
 		Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
@@ -311,8 +311,8 @@ void LitSkullApp::DrawScene()
 		for(int i = 0; i < 10; ++i)
 		{
 			world = XMLoadFloat4x4(&mCylWorld[i]);
-			worldInvTranspose = MathHelper::InverseTranspose(world);
 			worldViewProj = world*view*proj;
+			worldInvTranspose = MathHelper::InverseTranspose(world);
 
 			Effects::BasicFX->SetWorld(world);
 			Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
@@ -327,8 +327,8 @@ void LitSkullApp::DrawScene()
 		for(int i = 0; i < 10; ++i)
 		{
 			world = XMLoadFloat4x4(&mSphereWorld[i]);
-			worldInvTranspose = MathHelper::InverseTranspose(world);
 			worldViewProj = world*view*proj;
+			worldInvTranspose = MathHelper::InverseTranspose(world);
 
 			Effects::BasicFX->SetWorld(world);
 			Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
