@@ -5,6 +5,9 @@
 #ifndef D3DUTIL_H
 #define D3DUTIL_H
 
+#define FORMAT_MSG_BUFFER_SIZE (204800)
+#define _CRT_SECURE_NO_WARNINGS
+
 #if defined(DEBUG) || defined(_DEBUG)
 #define _CRTDBG_MAP_ALLOC
 #include <crtdbg.h>
@@ -103,6 +106,17 @@ public:
 		return x;
 	}
 };
+
+static inline std::string format(const char *fmt, ...)
+{
+	char szBuffer[FORMAT_MSG_BUFFER_SIZE + 1] = { 0 };
+	va_list args;
+	va_start(args, fmt);
+	vsnprintf(szBuffer, FORMAT_MSG_BUFFER_SIZE, fmt, args);
+	va_end(args);
+	std::string strRet  = szBuffer;
+	return strRet;
+}
 
 // Order: left, right, bottom, top, near, far.
 void ExtractFrustumPlanes(XMFLOAT4 planes[6], CXMMATRIX M);
