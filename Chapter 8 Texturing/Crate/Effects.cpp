@@ -49,6 +49,9 @@ BasicEffect::BasicEffect(ID3D11Device* device, const std::wstring& filename)
 	DirLights         = mFX->GetVariableByName("gDirLights");
 	Mat               = mFX->GetVariableByName("gMaterial");
 	DiffuseMap        = mFX->GetVariableByName("gDiffuseMap")->AsShaderResource();
+
+	FlareMap		  = mFX->GetVariableByName("gFlareMap")->AsShaderResource();
+	FlareAlphaMap	  = mFX->GetVariableByName("gFlareAlphaMap")->AsShaderResource();
 }
 
 BasicEffect::~BasicEffect()

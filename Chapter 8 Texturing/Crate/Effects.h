@@ -43,6 +43,9 @@ public:
 	void SetMaterial(const Material& mat)               { Mat->SetRawValue(&mat, 0, sizeof(Material)); }
 	void SetDiffuseMap(ID3D11ShaderResourceView* tex)   { DiffuseMap->SetResource(tex); }
 
+	void SetFlareMap(ID3D11ShaderResourceView* tex)		{ FlareMap->SetResource(tex); }
+	void SetFlareAlphaMap(ID3D11ShaderResourceView* tex)	{ FlareAlphaMap->SetResource(tex); }
+
 	ID3DX11EffectTechnique* Light1Tech;
 	ID3DX11EffectTechnique* Light2Tech;
 	ID3DX11EffectTechnique* Light3Tech;
@@ -61,6 +64,9 @@ public:
 	ID3DX11EffectVariable* Mat;
 
 	ID3DX11EffectShaderResourceVariable* DiffuseMap;
+
+	ID3DX11EffectShaderResourceVariable* FlareMap;
+	ID3DX11EffectShaderResourceVariable* FlareAlphaMap;
 };
 #pragma endregion
 

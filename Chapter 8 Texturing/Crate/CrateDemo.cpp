@@ -41,6 +41,9 @@ private:
 
 	ID3D11ShaderResourceView* mDiffuseMapSRV;
 
+	ID3D11ShaderResourceView* mFlareMapSRV;
+	ID3D11ShaderResourceView* mFlareAlphaMapSRV;
+
 	DirectionalLight mDirLights[3];
 	Material mBoxMat;
 
@@ -81,7 +84,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
  
 
 CrateApp::CrateApp(HINSTANCE hInstance)
-: D3DApp(hInstance), mBoxVB(0), mBoxIB(0), mDiffuseMapSRV(0), mEyePosW(0.0f, 0.0f, 0.0f), 
+: D3DApp(hInstance), mBoxVB(0), mBoxIB(0), mDiffuseMapSRV(0), mFlareMapSRV(0), mFlareAlphaMapSRV(0), mEyePosW(0.0f, 0.0f, 0.0f), 
   mTheta(1.3f*MathHelper::Pi), mPhi(0.4f*MathHelper::Pi), mRadius(2.5f)
 {
 	mMainWndCaption = L"Crate Demo";
@@ -127,6 +130,8 @@ CrateApp::CrateApp(HINSTANCE hInstance)
 	//立方体盒子本身的位置时固定的，灯光是平行光，那么立方体能受到的光照区域也是固定的。
 	//在演示程序里，看似整个场景在一个球面上来回旋转，其实是在改变摄像机的位置，而摄像机的观察方向不改变。
 	//摄像机的方向不同，则看到的画面不一样，看似是立方体在旋转，其实不然。
+
+	//构造方法里只初始化数据.
 }
 
 CrateApp::~CrateApp()
@@ -134,6 +139,8 @@ CrateApp::~CrateApp()
 	ReleaseCOM(mBoxVB);
 	ReleaseCOM(mBoxIB);
 	ReleaseCOM(mDiffuseMapSRV);
+	ReleaseCOM(mFlareMapSRV);
+	ReleaseCOM(mFlareAlphaMapSRV);
 
 	Effects::DestroyAll();
 	InputLayouts::DestroyAll();
@@ -150,6 +157,12 @@ bool CrateApp::Init()
 
 	HR(D3DX11CreateShaderResourceViewFromFile(md3dDevice, 
 		L"Textures/WoodCrate01.dds", 0, 0, &mDiffuseMapSRV, 0 ));
+	
+	//Init方法里做初始化资源的工作.
+	HR(D3DX11CreateShaderResourceViewFromFile(md3dDevice,
+		L"../flare.dds", 0, 0, &mFlareMapSRV, 0));
+	HR(D3DX11CreateShaderResourceViewFromFile(md3dDevice,
+		L"../flarealpha.dds", 0, 0, &mFlareAlphaMapSRV, 0));
 
 	BuildGeometryBuffers();
 
@@ -220,6 +233,9 @@ void CrateApp::DrawScene()
 		Effects::BasicFX->SetTexTransform(XMLoadFloat4x4(&mTexTransform));
 		Effects::BasicFX->SetMaterial(mBoxMat);
 		Effects::BasicFX->SetDiffuseMap(mDiffuseMapSRV);
+
+		Effects::BasicFX->SetFlareMap(mFlareMapSRV);
+		Effects::BasicFX->SetFlareAlphaMap(mFlareAlphaMapSRV);
 
 		activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
 		md3dImmediateContext->DrawIndexed(mBoxIndexCount, mBoxIndexOffset, mBoxVertexOffset);
