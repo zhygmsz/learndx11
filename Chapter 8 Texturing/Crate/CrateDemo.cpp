@@ -43,6 +43,7 @@ private:
 
 	ID3D11ShaderResourceView* mFlareMapSRV;
 	ID3D11ShaderResourceView* mFlareAlphaMapSRV;
+	XMFLOAT2 mFlareTexOffset;
 
 	DirectionalLight mDirLights[3];
 	Material mBoxMat;
@@ -85,7 +86,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 CrateApp::CrateApp(HINSTANCE hInstance)
 : D3DApp(hInstance), mBoxVB(0), mBoxIB(0), mDiffuseMapSRV(0), mFlareMapSRV(0), mFlareAlphaMapSRV(0), mEyePosW(0.0f, 0.0f, 0.0f), 
-  mTheta(1.3f*MathHelper::Pi), mPhi(0.4f*MathHelper::Pi), mRadius(2.5f)
+  mTheta(1.3f*MathHelper::Pi), mPhi(0.4f*MathHelper::Pi), mRadius(2.5f), mFlareTexOffset(0.0f, 0.0f)
 {
 	mMainWndCaption = L"Crate Demo";
 	
@@ -94,13 +95,9 @@ CrateApp::CrateApp(HINSTANCE hInstance)
 
 	XMMATRIX I = XMMatrixIdentity();
 	XMStoreFloat4x4(&mBoxWorld, I);
-	//XMStoreFloat4x4(&mTexTransform, I);
+	XMStoreFloat4x4(&mTexTransform, I);
 	XMStoreFloat4x4(&mView, I);
 	XMStoreFloat4x4(&mProj, I);
-
-	//设置纹理坐标缩放矩阵，配合重复模式
-	XMMATRIX texScale = XMMatrixScaling(1.0f, 1.0f, 0.0f);
-	XMStoreFloat4x4(&mTexTransform, texScale);
 
 	//zhy 笔记
 	//把纹理作为材质时，将环境光和漫反射光调制到纹理颜色上。
@@ -193,6 +190,28 @@ void CrateApp::UpdateScene(float dt)
 
 	XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
 	XMStoreFloat4x4(&mView, V);
+
+	//纹理坐标旋转矩阵
+ 	static float angle = 0.0f;
+	angle += dt * 1;
+	XMMATRIX flareTrans = XMMatrixTranslation(0.5f, 0.5f, 0.0f);
+	XMMATRIX flareTransInv = XMMatrixTranslation(-0.5f, -0.5f, 0.0f);
+	XMMATRIX flareRotation = XMMatrixRotationZ(angle);
+	XMStoreFloat4x4(&mTexTransform, flareTransInv * flareRotation * flareTrans);
+
+	//zhy 笔记
+	//在这个旋转火球的例子中，最初一直很迷惑，虽然知道是平移+旋转+平移的套路，但不得其法。
+	//在这其中，忽略了两个前提，这两个前提决定了渲染到屏幕上具体内容的细节
+	//第一个是纹理的寻址模式，最初设置的是WRAP，没有意识到这个问题的时候，发现把纹理坐标做了平移后，正方形的其他区域还有火球的其他轮廓
+	//第二个是顶点坐标和纹理坐标的对应关系，毕竟立方体有6个面，而我却以为每个面的左上角都是对应纹理坐标的原点。这才使得，无论怎么捋都捋不顺逻辑。
+	//在确定了寻址模式和顶点坐标与纹理坐标对应关系后，把立方体的创建细节里只剩余一个面，确定了该面的左上角对应纹理坐标原点。
+	//平移矩阵和旋转矩阵都是在操作纹理坐标，比如flareTransInv平移相当于把纹理坐标都统一减去了0.5
+	//正方形左上角现在的纹理坐标为-0.5，而原来的中心点纹理坐标变成了纹理坐标原点。
+	//操作纹理坐标和操作纹理坐标系是一个逆关系，flareTransInv平移矩阵相当于是把原来正方形左上角的纹理坐标系原点挪到了正方形的中心。
+	//而flareRotation旋转矩阵始终是沿着纹理坐标系的Z轴（也就是纹理坐标系原点）旋转。
+	//所以之前的思路（想着怎么把纹理的中心点挪到正方形的左上角）是错误的。正确的思路应该是把旋转轴从正方形的左上角挪到中心点。
+	//现在旋转中心轴位于正方形的中心，旋转后，再把纹理平移回去即可。
+	//其实这些操作纹理坐标的变换矩阵，都可以在VS里实现。
 }
 
 void CrateApp::DrawScene()

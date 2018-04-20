@@ -44,8 +44,11 @@ SamplerState samAnisotropic
 	Filter = ANISOTROPIC;
 	MaxAnisotropy = 4;
 
-	AddressU = WRAP;
-	AddressV = WRAP;
+	//zhy 疑问
+	//HLSL里的这些枚举值们，用起来像是大小写不敏感的
+	//后续可求证下
+	AddressU = Border;
+	AddressV = Border;
 };
 
 struct VertexIn
