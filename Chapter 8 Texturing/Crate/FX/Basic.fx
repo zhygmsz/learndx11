@@ -30,6 +30,14 @@ Texture2D gDiffuseMap;
 
 SamplerState samAnisotropic
 {
+	//zhy 疑问
+	//当纹理坐标规范到[0,1]时且无缩放，出现了缩减现象（较多的纹理坐标映射到较少的屏幕像素上）。
+	//MIN设置为POINT时有颗粒感，设置为LINEAR时效果好很多。
+	//当纹理坐标缩小到0.5时，出现了倍增现象（较少的纹理坐标映射到较多的屏幕像素上）
+	//MAG设置为POINT时有颗粒感，设置为LINEAR时效果好很多
+	//可不管是出现缩减还是倍增现象，只要设置ANISOTROPIC时，都是很好的效果
+	//看起来像是，ANISOTROPIC里包含了LINEAR似的。
+	//还是说ANISOTROPIC的过滤方式里暗含了LINEAR的效果.
 	Filter = ANISOTROPIC;
 	MaxAnisotropy = 4;
 

@@ -111,7 +111,7 @@ fxgroup
                 dcl_output o3.xy
                 dcl_temps 5
                 
-                #line 60 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 68 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r0.xyz, v0.xyzx
                 mov r0.w, l(1.000000)
                 dp4 r1.x, r0.xyzw, cb0[0].xyzw  // vout<4:NaN:Inf>
@@ -121,13 +121,13 @@ fxgroup
                 dp3 r2.y, v1.xyzx, cb0[5].xyzx  // vout<8:NaN:Inf>
                 dp3 r2.z, v1.xyzx, cb0[6].xyzx  // vout<9:NaN:Inf>
                 
-                #line 64
+                #line 72
                 dp4 r3.x, r0.xyzw, cb0[8].xyzw  // vout<0:NaN:Inf>
                 dp4 r3.y, r0.xyzw, cb0[9].xyzw  // vout<1:NaN:Inf>
                 dp4 r3.z, r0.xyzw, cb0[10].xyzw  // vout<2:NaN:Inf>
                 dp4 r3.w, r0.xyzw, cb0[11].xyzw  // vout<3:NaN:Inf>
                 
-                #line 67
+                #line 75
                 mov r0.xy, v2.xyxx
                 mov r0.zw, l(0,0,0,1.000000)
                 dp4 r4.x, r0.xyzw, cb0[12].xyzw  // vout<10:NaN:Inf>
@@ -223,23 +223,23 @@ fxgroup
                 dcl_output o0.xyzw
                 dcl_temps 9
                 
-                #line 75 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 83 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 dp3 r0.x, v2.xyzx, v2.xyzx
                 rsq r0.x, r0.x
                 mul r0.xyz, r0.xxxx, v2.xyzx  // pin<7:NaN:Inf,8:NaN:Inf,9:NaN:Inf>
                 
-                #line 78
+                #line 86
                 mov r1.xyz, -v1.xyzx
                 add r1.xyz, r1.xyzx, cb0[12].xyzx  // toEye<0:Inf,1:Inf,2:Inf>
                 
-                #line 81
+                #line 89
                 dp3 r0.w, r1.xyzx, r1.xyzx
                 sqrt r0.w, r0.w  // distToEye<0:NaN:Inf>
                 
-                #line 84
+                #line 92
                 div r1.xyz, r1.xyzx, r0.wwww  // toEye<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 111
+                #line 119
                 nop 
                 mov r2.xyz, cb1[16].xyzx  // mat<0,1,2>
                 mov r3.xyz, cb1[17].xyzx  // mat<4,5,6>
@@ -282,22 +282,22 @@ fxgroup
                 movc r0.xyz, r1.wwww, r0.yzwy, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 movc r1.xyz, r1.wwww, r1.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 111 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 119 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r2.xyz, r2.xyzx  // A<0:Inf,1:Inf,2:Inf>
                 mov r0.xyz, r0.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov r1.xyz, r1.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 114
+                #line 122
                 add r2.xyz, r2.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // ambient<0:Inf,1:Inf,2:Inf>
                 add r0.xyz, r0.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r1.xyz, r1.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 120
+                #line 128
                 add r0.xyz, r0.xyzx, r2.xyzx
                 mul r0.xyz, r0.xyzx, l(1.000000, 1.000000, 1.000000, 0.000000)
                 add r0.xyz, r1.xyzx, r0.xyzx  // litColor<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 124
+                #line 132
                 mul r0.w, cb1[17].w, l(1.000000)  // litColor<3>
                 mov o0.xyz, r0.xyzx  // PS<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov o0.w, r0.w  // PS<3>
@@ -379,7 +379,7 @@ fxgroup
                 dcl_output o3.xy
                 dcl_temps 5
                 
-                #line 60 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 68 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r0.xyz, v0.xyzx
                 mov r0.w, l(1.000000)
                 dp4 r1.x, r0.xyzw, cb0[0].xyzw  // vout<4:NaN:Inf>
@@ -389,13 +389,13 @@ fxgroup
                 dp3 r2.y, v1.xyzx, cb0[5].xyzx  // vout<8:NaN:Inf>
                 dp3 r2.z, v1.xyzx, cb0[6].xyzx  // vout<9:NaN:Inf>
                 
-                #line 64
+                #line 72
                 dp4 r3.x, r0.xyzw, cb0[8].xyzw  // vout<0:NaN:Inf>
                 dp4 r3.y, r0.xyzw, cb0[9].xyzw  // vout<1:NaN:Inf>
                 dp4 r3.z, r0.xyzw, cb0[10].xyzw  // vout<2:NaN:Inf>
                 dp4 r3.w, r0.xyzw, cb0[11].xyzw  // vout<3:NaN:Inf>
                 
-                #line 67
+                #line 75
                 mov r0.xy, v2.xyxx
                 mov r0.zw, l(0,0,0,1.000000)
                 dp4 r4.x, r0.xyzw, cb0[12].xyzw  // vout<10:NaN:Inf>
@@ -491,23 +491,23 @@ fxgroup
                 dcl_output o0.xyzw
                 dcl_temps 12
                 
-                #line 75 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 83 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 dp3 r0.x, v2.xyzx, v2.xyzx
                 rsq r0.x, r0.x
                 mul r0.xyz, r0.xxxx, v2.xyzx  // pin<7:NaN:Inf,8:NaN:Inf,9:NaN:Inf>
                 
-                #line 78
+                #line 86
                 mov r1.xyz, -v1.xyzx
                 add r1.xyz, r1.xyzx, cb0[12].xyzx  // toEye<0:Inf,1:Inf,2:Inf>
                 
-                #line 81
+                #line 89
                 dp3 r0.w, r1.xyzx, r1.xyzx
                 sqrt r0.w, r0.w  // distToEye<0:NaN:Inf>
                 
-                #line 84
+                #line 92
                 div r1.xyz, r1.xyzx, r0.wwww  // toEye<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 111
+                #line 119
                 nop 
                 mov r2.xyz, cb1[16].xyzx  // mat<0,1,2>
                 mov r3.xyz, cb1[17].xyzx  // mat<4,5,6>
@@ -550,17 +550,17 @@ fxgroup
                 movc r6.xyz, r1.wwww, r6.xyzx, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 movc r7.xyz, r1.wwww, r7.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 111 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 119 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r5.xyz, r5.xyzx  // A<0:Inf,1:Inf,2:Inf>
                 mov r6.xyz, r6.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov r7.xyz, r7.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 114
+                #line 122
                 add r5.xyz, r5.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // ambient<0:Inf,1:Inf,2:Inf>
                 add r6.xyz, r6.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r7.xyz, r7.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 111
+                #line 119
                 nop 
                 mov r8.xyz, cb0[4].xyzx  // L<0,1,2>
                 mov r9.xyz, cb0[5].xyzx  // L<4,5,6>
@@ -598,22 +598,22 @@ fxgroup
                 movc r0.xyz, r1.wwww, r0.yzwy, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 movc r1.xyz, r1.wwww, r1.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 111 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 119 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r2.xyz, r2.xyzx  // A<0:Inf,1:Inf,2:Inf>
                 mov r0.xyz, r0.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov r1.xyz, r1.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 114
+                #line 122
                 add r2.xyz, r2.xyzx, r5.xyzx  // ambient<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r0.xyz, r0.xyzx, r6.xyzx  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r1.xyz, r1.xyzx, r7.xyzx  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 120
+                #line 128
                 add r0.xyz, r0.xyzx, r2.xyzx
                 mul r0.xyz, r0.xyzx, l(1.000000, 1.000000, 1.000000, 0.000000)
                 add r0.xyz, r1.xyzx, r0.xyzx  // litColor<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 124
+                #line 132
                 mul r0.w, cb1[17].w, l(1.000000)  // litColor<3>
                 mov o0.xyz, r0.xyzx  // PS<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov o0.w, r0.w  // PS<3>
@@ -695,7 +695,7 @@ fxgroup
                 dcl_output o3.xy
                 dcl_temps 5
                 
-                #line 60 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 68 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r0.xyz, v0.xyzx
                 mov r0.w, l(1.000000)
                 dp4 r1.x, r0.xyzw, cb0[0].xyzw  // vout<4:NaN:Inf>
@@ -705,13 +705,13 @@ fxgroup
                 dp3 r2.y, v1.xyzx, cb0[5].xyzx  // vout<8:NaN:Inf>
                 dp3 r2.z, v1.xyzx, cb0[6].xyzx  // vout<9:NaN:Inf>
                 
-                #line 64
+                #line 72
                 dp4 r3.x, r0.xyzw, cb0[8].xyzw  // vout<0:NaN:Inf>
                 dp4 r3.y, r0.xyzw, cb0[9].xyzw  // vout<1:NaN:Inf>
                 dp4 r3.z, r0.xyzw, cb0[10].xyzw  // vout<2:NaN:Inf>
                 dp4 r3.w, r0.xyzw, cb0[11].xyzw  // vout<3:NaN:Inf>
                 
-                #line 67
+                #line 75
                 mov r0.xy, v2.xyxx
                 mov r0.zw, l(0,0,0,1.000000)
                 dp4 r4.x, r0.xyzw, cb0[12].xyzw  // vout<10:NaN:Inf>
@@ -807,23 +807,23 @@ fxgroup
                 dcl_output o0.xyzw
                 dcl_temps 13
                 
-                #line 75 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 83 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 dp3 r0.x, v2.xyzx, v2.xyzx
                 rsq r0.x, r0.x
                 mul r0.xyz, r0.xxxx, v2.xyzx  // pin<7:NaN:Inf,8:NaN:Inf,9:NaN:Inf>
                 
-                #line 78
+                #line 86
                 mov r1.xyz, -v1.xyzx
                 add r1.xyz, r1.xyzx, cb0[12].xyzx  // toEye<0:Inf,1:Inf,2:Inf>
                 
-                #line 81
+                #line 89
                 dp3 r0.w, r1.xyzx, r1.xyzx
                 sqrt r0.w, r0.w  // distToEye<0:NaN:Inf>
                 
-                #line 84
+                #line 92
                 div r1.xyz, r1.xyzx, r0.wwww  // toEye<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 111
+                #line 119
                 nop 
                 mov r2.xyz, cb1[16].xyzx  // mat<0,1,2>
                 mov r3.xyz, cb1[17].xyzx  // mat<4,5,6>
@@ -866,17 +866,17 @@ fxgroup
                 movc r6.xyz, r1.wwww, r6.xyzx, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 movc r7.xyz, r1.wwww, r7.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 111 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 119 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r5.xyz, r5.xyzx  // A<0:Inf,1:Inf,2:Inf>
                 mov r6.xyz, r6.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov r7.xyz, r7.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 114
+                #line 122
                 add r5.xyz, r5.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // ambient<0:Inf,1:Inf,2:Inf>
                 add r6.xyz, r6.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r7.xyz, r7.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 111
+                #line 119
                 nop 
                 mov r8.xyz, cb0[4].xyzx  // L<0,1,2>
                 mov r9.xyz, cb0[5].xyzx  // L<4,5,6>
@@ -914,17 +914,17 @@ fxgroup
                 movc r9.xyz, r1.wwww, r9.xyzx, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 movc r10.xyz, r1.wwww, r10.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 111 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 119 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r8.xyz, r8.xyzx  // A<0:Inf,1:Inf,2:Inf>
                 mov r9.xyz, r9.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov r10.xyz, r10.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 114
+                #line 122
                 add r5.xyz, r5.xyzx, r8.xyzx  // ambient<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r6.xyz, r6.xyzx, r9.xyzx  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r7.xyz, r7.xyzx, r10.xyzx  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 111
+                #line 119
                 nop 
                 mov r8.xyz, cb0[8].xyzx  // L<0,1,2>
                 mov r9.xyz, cb0[9].xyzx  // L<4,5,6>
@@ -962,22 +962,22 @@ fxgroup
                 movc r0.xyz, r1.wwww, r0.yzwy, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 movc r1.xyz, r1.wwww, r1.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 111 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 119 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r2.xyz, r2.xyzx  // A<0:Inf,1:Inf,2:Inf>
                 mov r0.xyz, r0.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov r1.xyz, r1.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 114
+                #line 122
                 add r2.xyz, r2.xyzx, r5.xyzx  // ambient<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r0.xyz, r0.xyzx, r6.xyzx  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r1.xyz, r1.xyzx, r7.xyzx  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 120
+                #line 128
                 add r0.xyz, r0.xyzx, r2.xyzx
                 mul r0.xyz, r0.xyzx, l(1.000000, 1.000000, 1.000000, 0.000000)
                 add r0.xyz, r1.xyzx, r0.xyzx  // litColor<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 124
+                #line 132
                 mul r0.w, cb1[17].w, l(1.000000)  // litColor<3>
                 mov o0.xyz, r0.xyzx  // PS<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov o0.w, r0.w  // PS<3>
@@ -1059,7 +1059,7 @@ fxgroup
                 dcl_output o3.xy
                 dcl_temps 5
                 
-                #line 60 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 68 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r0.xyz, v0.xyzx
                 mov r0.w, l(1.000000)
                 dp4 r1.x, r0.xyzw, cb0[0].xyzw  // vout<4:NaN:Inf>
@@ -1069,13 +1069,13 @@ fxgroup
                 dp3 r2.y, v1.xyzx, cb0[5].xyzx  // vout<8:NaN:Inf>
                 dp3 r2.z, v1.xyzx, cb0[6].xyzx  // vout<9:NaN:Inf>
                 
-                #line 64
+                #line 72
                 dp4 r3.x, r0.xyzw, cb0[8].xyzw  // vout<0:NaN:Inf>
                 dp4 r3.y, r0.xyzw, cb0[9].xyzw  // vout<1:NaN:Inf>
                 dp4 r3.z, r0.xyzw, cb0[10].xyzw  // vout<2:NaN:Inf>
                 dp4 r3.w, r0.xyzw, cb0[11].xyzw  // vout<3:NaN:Inf>
                 
-                #line 67
+                #line 75
                 mov r0.xy, v2.xyxx
                 mov r0.zw, l(0,0,0,1.000000)
                 dp4 r4.x, r0.xyzw, cb0[12].xyzw  // vout<10:NaN:Inf>
@@ -1152,13 +1152,13 @@ fxgroup
                 dcl_output o0.xyzw
                 dcl_temps 1
                 
-                #line 91 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 99 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 sample_indexable(texture2d)(float,float,float,float) r0.xyzw, v3.xyxx, t0.xyzw, s0  // texColor<0:Inf,1:Inf,2:Inf,3:Inf>
                 
-                #line 98
+                #line 106
                 mov r0.xyz, r0.xyzx  // litColor<0:Inf,1:Inf,2:Inf>
                 
-                #line 124
+                #line 132
                 mul r0.w, r0.w, cb0[17].w  // litColor<3:NaN:Inf>
                 mov o0.xyz, r0.xyzx  // PS<0:Inf,1:Inf,2:Inf>
                 mov o0.w, r0.w  // PS<3:NaN:Inf>
@@ -1240,7 +1240,7 @@ fxgroup
                 dcl_output o3.xy
                 dcl_temps 5
                 
-                #line 60 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 68 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r0.xyz, v0.xyzx
                 mov r0.w, l(1.000000)
                 dp4 r1.x, r0.xyzw, cb0[0].xyzw  // vout<4:NaN:Inf>
@@ -1250,13 +1250,13 @@ fxgroup
                 dp3 r2.y, v1.xyzx, cb0[5].xyzx  // vout<8:NaN:Inf>
                 dp3 r2.z, v1.xyzx, cb0[6].xyzx  // vout<9:NaN:Inf>
                 
-                #line 64
+                #line 72
                 dp4 r3.x, r0.xyzw, cb0[8].xyzw  // vout<0:NaN:Inf>
                 dp4 r3.y, r0.xyzw, cb0[9].xyzw  // vout<1:NaN:Inf>
                 dp4 r3.z, r0.xyzw, cb0[10].xyzw  // vout<2:NaN:Inf>
                 dp4 r3.w, r0.xyzw, cb0[11].xyzw  // vout<3:NaN:Inf>
                 
-                #line 67
+                #line 75
                 mov r0.xy, v2.xyxx
                 mov r0.zw, l(0,0,0,1.000000)
                 dp4 r4.x, r0.xyzw, cb0[12].xyzw  // vout<10:NaN:Inf>
@@ -1357,26 +1357,26 @@ fxgroup
                 dcl_output o0.xyzw
                 dcl_temps 10
                 
-                #line 75 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 83 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 dp3 r0.x, v2.xyzx, v2.xyzx
                 rsq r0.x, r0.x
                 mul r0.xyz, r0.xxxx, v2.xyzx  // pin<7:NaN:Inf,8:NaN:Inf,9:NaN:Inf>
                 
-                #line 78
+                #line 86
                 mov r1.xyz, -v1.xyzx
                 add r1.xyz, r1.xyzx, cb0[12].xyzx  // toEye<0:Inf,1:Inf,2:Inf>
                 
-                #line 81
+                #line 89
                 dp3 r0.w, r1.xyzx, r1.xyzx
                 sqrt r0.w, r0.w  // distToEye<0:NaN:Inf>
                 
-                #line 84
+                #line 92
                 div r1.xyz, r1.xyzx, r0.wwww  // toEye<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 91
+                #line 99
                 sample_indexable(texture2d)(float,float,float,float) r2.xyzw, v3.xyxx, t0.xyzw, s0  // texColor<0:Inf,1:Inf,2:Inf,3:Inf>
                 
-                #line 111
+                #line 119
                 nop 
                 mov r3.xyz, cb1[16].xyzx  // mat<0,1,2>
                 mov r4.xyz, cb1[17].xyzx  // mat<4,5,6>
@@ -1419,22 +1419,22 @@ fxgroup
                 movc r0.xyz, r1.wwww, r0.yzwy, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 movc r1.xyz, r1.wwww, r1.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 111 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 119 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r3.xyz, r3.xyzx  // A<0:Inf,1:Inf,2:Inf>
                 mov r0.xyz, r0.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov r1.xyz, r1.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 114
+                #line 122
                 add r3.xyz, r3.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // ambient<0:Inf,1:Inf,2:Inf>
                 add r0.xyz, r0.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r1.xyz, r1.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 120
+                #line 128
                 add r0.xyz, r0.xyzx, r3.xyzx
                 mul r0.xyz, r0.xyzx, r2.xyzx
                 add r0.xyz, r1.xyzx, r0.xyzx  // litColor<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 124
+                #line 132
                 mul r0.w, r2.w, cb1[17].w  // litColor<3:NaN:Inf>
                 mov o0.xyz, r0.xyzx  // PS<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov o0.w, r0.w  // PS<3:NaN:Inf>
@@ -1516,7 +1516,7 @@ fxgroup
                 dcl_output o3.xy
                 dcl_temps 5
                 
-                #line 60 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 68 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r0.xyz, v0.xyzx
                 mov r0.w, l(1.000000)
                 dp4 r1.x, r0.xyzw, cb0[0].xyzw  // vout<4:NaN:Inf>
@@ -1526,13 +1526,13 @@ fxgroup
                 dp3 r2.y, v1.xyzx, cb0[5].xyzx  // vout<8:NaN:Inf>
                 dp3 r2.z, v1.xyzx, cb0[6].xyzx  // vout<9:NaN:Inf>
                 
-                #line 64
+                #line 72
                 dp4 r3.x, r0.xyzw, cb0[8].xyzw  // vout<0:NaN:Inf>
                 dp4 r3.y, r0.xyzw, cb0[9].xyzw  // vout<1:NaN:Inf>
                 dp4 r3.z, r0.xyzw, cb0[10].xyzw  // vout<2:NaN:Inf>
                 dp4 r3.w, r0.xyzw, cb0[11].xyzw  // vout<3:NaN:Inf>
                 
-                #line 67
+                #line 75
                 mov r0.xy, v2.xyxx
                 mov r0.zw, l(0,0,0,1.000000)
                 dp4 r4.x, r0.xyzw, cb0[12].xyzw  // vout<10:NaN:Inf>
@@ -1633,26 +1633,26 @@ fxgroup
                 dcl_output o0.xyzw
                 dcl_temps 13
                 
-                #line 75 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 83 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 dp3 r0.x, v2.xyzx, v2.xyzx
                 rsq r0.x, r0.x
                 mul r0.xyz, r0.xxxx, v2.xyzx  // pin<7:NaN:Inf,8:NaN:Inf,9:NaN:Inf>
                 
-                #line 78
+                #line 86
                 mov r1.xyz, -v1.xyzx
                 add r1.xyz, r1.xyzx, cb0[12].xyzx  // toEye<0:Inf,1:Inf,2:Inf>
                 
-                #line 81
+                #line 89
                 dp3 r0.w, r1.xyzx, r1.xyzx
                 sqrt r0.w, r0.w  // distToEye<0:NaN:Inf>
                 
-                #line 84
+                #line 92
                 div r1.xyz, r1.xyzx, r0.wwww  // toEye<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 91
+                #line 99
                 sample_indexable(texture2d)(float,float,float,float) r2.xyzw, v3.xyxx, t0.xyzw, s0  // texColor<0:Inf,1:Inf,2:Inf,3:Inf>
                 
-                #line 111
+                #line 119
                 nop 
                 mov r3.xyz, cb1[16].xyzx  // mat<0,1,2>
                 mov r4.xyz, cb1[17].xyzx  // mat<4,5,6>
@@ -1695,17 +1695,17 @@ fxgroup
                 movc r7.xyz, r1.wwww, r7.xyzx, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 movc r8.xyz, r1.wwww, r8.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 111 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 119 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r6.xyz, r6.xyzx  // A<0:Inf,1:Inf,2:Inf>
                 mov r7.xyz, r7.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov r8.xyz, r8.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 114
+                #line 122
                 add r6.xyz, r6.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // ambient<0:Inf,1:Inf,2:Inf>
                 add r7.xyz, r7.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r8.xyz, r8.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 111
+                #line 119
                 nop 
                 mov r9.xyz, cb0[4].xyzx  // L<0,1,2>
                 mov r10.xyz, cb0[5].xyzx  // L<4,5,6>
@@ -1743,22 +1743,22 @@ fxgroup
                 movc r0.xyz, r1.wwww, r0.yzwy, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 movc r1.xyz, r1.wwww, r1.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 111 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 119 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r3.xyz, r3.xyzx  // A<0:Inf,1:Inf,2:Inf>
                 mov r0.xyz, r0.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov r1.xyz, r1.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 114
+                #line 122
                 add r3.xyz, r3.xyzx, r6.xyzx  // ambient<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r0.xyz, r0.xyzx, r7.xyzx  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r1.xyz, r1.xyzx, r8.xyzx  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 120
+                #line 128
                 add r0.xyz, r0.xyzx, r3.xyzx
                 mul r0.xyz, r0.xyzx, r2.xyzx
                 add r0.xyz, r1.xyzx, r0.xyzx  // litColor<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 124
+                #line 132
                 mul r0.w, r2.w, cb1[17].w  // litColor<3:NaN:Inf>
                 mov o0.xyz, r0.xyzx  // PS<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov o0.w, r0.w  // PS<3:NaN:Inf>
@@ -1840,7 +1840,7 @@ fxgroup
                 dcl_output o3.xy
                 dcl_temps 5
                 
-                #line 60 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 68 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r0.xyz, v0.xyzx
                 mov r0.w, l(1.000000)
                 dp4 r1.x, r0.xyzw, cb0[0].xyzw  // vout<4:NaN:Inf>
@@ -1850,13 +1850,13 @@ fxgroup
                 dp3 r2.y, v1.xyzx, cb0[5].xyzx  // vout<8:NaN:Inf>
                 dp3 r2.z, v1.xyzx, cb0[6].xyzx  // vout<9:NaN:Inf>
                 
-                #line 64
+                #line 72
                 dp4 r3.x, r0.xyzw, cb0[8].xyzw  // vout<0:NaN:Inf>
                 dp4 r3.y, r0.xyzw, cb0[9].xyzw  // vout<1:NaN:Inf>
                 dp4 r3.z, r0.xyzw, cb0[10].xyzw  // vout<2:NaN:Inf>
                 dp4 r3.w, r0.xyzw, cb0[11].xyzw  // vout<3:NaN:Inf>
                 
-                #line 67
+                #line 75
                 mov r0.xy, v2.xyxx
                 mov r0.zw, l(0,0,0,1.000000)
                 dp4 r4.x, r0.xyzw, cb0[12].xyzw  // vout<10:NaN:Inf>
@@ -1957,26 +1957,26 @@ fxgroup
                 dcl_output o0.xyzw
                 dcl_temps 14
                 
-                #line 75 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 83 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 dp3 r0.x, v2.xyzx, v2.xyzx
                 rsq r0.x, r0.x
                 mul r0.xyz, r0.xxxx, v2.xyzx  // pin<7:NaN:Inf,8:NaN:Inf,9:NaN:Inf>
                 
-                #line 78
+                #line 86
                 mov r1.xyz, -v1.xyzx
                 add r1.xyz, r1.xyzx, cb0[12].xyzx  // toEye<0:Inf,1:Inf,2:Inf>
                 
-                #line 81
+                #line 89
                 dp3 r0.w, r1.xyzx, r1.xyzx
                 sqrt r0.w, r0.w  // distToEye<0:NaN:Inf>
                 
-                #line 84
+                #line 92
                 div r1.xyz, r1.xyzx, r0.wwww  // toEye<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 91
+                #line 99
                 sample_indexable(texture2d)(float,float,float,float) r2.xyzw, v3.xyxx, t0.xyzw, s0  // texColor<0:Inf,1:Inf,2:Inf,3:Inf>
                 
-                #line 111
+                #line 119
                 nop 
                 mov r3.xyz, cb1[16].xyzx  // mat<0,1,2>
                 mov r4.xyz, cb1[17].xyzx  // mat<4,5,6>
@@ -2019,17 +2019,17 @@ fxgroup
                 movc r7.xyz, r1.wwww, r7.xyzx, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 movc r8.xyz, r1.wwww, r8.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 111 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 119 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r6.xyz, r6.xyzx  // A<0:Inf,1:Inf,2:Inf>
                 mov r7.xyz, r7.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov r8.xyz, r8.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 114
+                #line 122
                 add r6.xyz, r6.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // ambient<0:Inf,1:Inf,2:Inf>
                 add r7.xyz, r7.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r8.xyz, r8.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 111
+                #line 119
                 nop 
                 mov r9.xyz, cb0[4].xyzx  // L<0,1,2>
                 mov r10.xyz, cb0[5].xyzx  // L<4,5,6>
@@ -2067,17 +2067,17 @@ fxgroup
                 movc r10.xyz, r1.wwww, r10.xyzx, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 movc r11.xyz, r1.wwww, r11.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 111 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 119 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r9.xyz, r9.xyzx  // A<0:Inf,1:Inf,2:Inf>
                 mov r10.xyz, r10.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov r11.xyz, r11.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 114
+                #line 122
                 add r6.xyz, r6.xyzx, r9.xyzx  // ambient<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r7.xyz, r7.xyzx, r10.xyzx  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r8.xyz, r8.xyzx, r11.xyzx  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 111
+                #line 119
                 nop 
                 mov r9.xyz, cb0[8].xyzx  // L<0,1,2>
                 mov r10.xyz, cb0[9].xyzx  // L<4,5,6>
@@ -2115,22 +2115,22 @@ fxgroup
                 movc r0.xyz, r1.wwww, r0.yzwy, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 movc r1.xyz, r1.wwww, r1.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 111 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 119 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r3.xyz, r3.xyzx  // A<0:Inf,1:Inf,2:Inf>
                 mov r0.xyz, r0.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov r1.xyz, r1.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 114
+                #line 122
                 add r3.xyz, r3.xyzx, r6.xyzx  // ambient<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r0.xyz, r0.xyzx, r7.xyzx  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r1.xyz, r1.xyzx, r8.xyzx  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 120
+                #line 128
                 add r0.xyz, r0.xyzx, r3.xyzx
                 mul r0.xyz, r0.xyzx, r2.xyzx
                 add r0.xyz, r1.xyzx, r0.xyzx  // litColor<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 124
+                #line 132
                 mul r0.w, r2.w, cb1[17].w  // litColor<3:NaN:Inf>
                 mov o0.xyz, r0.xyzx  // PS<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov o0.w, r0.w  // PS<3:NaN:Inf>

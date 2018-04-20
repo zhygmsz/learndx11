@@ -91,10 +91,15 @@ CrateApp::CrateApp(HINSTANCE hInstance)
 
 	XMMATRIX I = XMMatrixIdentity();
 	XMStoreFloat4x4(&mBoxWorld, I);
-	XMStoreFloat4x4(&mTexTransform, I);
+	//XMStoreFloat4x4(&mTexTransform, I);
 	XMStoreFloat4x4(&mView, I);
 	XMStoreFloat4x4(&mProj, I);
 
+	//设置纹理坐标缩放矩阵，配合重复模式
+	XMMATRIX texScale = XMMatrixScaling(1.0f, 1.0f, 0.0f);
+	XMStoreFloat4x4(&mTexTransform, texScale);
+
+	//zhy 笔记
 	//把纹理作为材质时，将环境光和漫反射光调制到纹理颜色上。
 	//灯光的某个属性的分量值要一样，但不同的属性值的分量值可以不同
 	//只有这样被调制后的纹理的颜色才不会和原色有差别，仅仅是改变了明暗效果。
@@ -111,12 +116,14 @@ CrateApp::CrateApp(HINSTANCE hInstance)
 	mDirLights[1].Direction = XMFLOAT3(-0.707f, 0.0f, 0.707f);
 	//mDirLights[1].Direction = XMFLOAT3(-1.0f, -1.0f, -1.0f);
 
+	//zhy 笔记
 	//材质只是用于和光照相互作用，目的是调和光照属性的分量值
 	//相当于光照在照射到物体上之前，多了一层叠加（或过滤）计算，使得光照效果有了更大和更广的调节范围。
 	mBoxMat.Ambient  = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	mBoxMat.Diffuse  = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	mBoxMat.Specular = XMFLOAT4(0.6f, 0.6f, 0.6f, 16.0f);
 
+	//zhy 笔记
 	//立方体盒子本身的位置时固定的，灯光是平行光，那么立方体能受到的光照区域也是固定的。
 	//在演示程序里，看似整个场景在一个球面上来回旋转，其实是在改变摄像机的位置，而摄像机的观察方向不改变。
 	//摄像机的方向不同，则看到的画面不一样，看似是立方体在旋转，其实不然。
