@@ -43,7 +43,6 @@ private:
 
 	ID3D11ShaderResourceView* mFlareMapSRV;
 	ID3D11ShaderResourceView* mFlareAlphaMapSRV;
-	XMFLOAT2 mFlareTexOffset;
 
 	DirectionalLight mDirLights[3];
 	Material mBoxMat;
@@ -86,7 +85,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 CrateApp::CrateApp(HINSTANCE hInstance)
 : D3DApp(hInstance), mBoxVB(0), mBoxIB(0), mDiffuseMapSRV(0), mFlareMapSRV(0), mFlareAlphaMapSRV(0), mEyePosW(0.0f, 0.0f, 0.0f), 
-  mTheta(1.3f*MathHelper::Pi), mPhi(0.4f*MathHelper::Pi), mRadius(2.5f), mFlareTexOffset(0.0f, 0.0f)
+  mTheta(1.3f*MathHelper::Pi), mPhi(0.4f*MathHelper::Pi), mRadius(2.5f)
 {
 	mMainWndCaption = L"Crate Demo";
 	
@@ -192,12 +191,20 @@ void CrateApp::UpdateScene(float dt)
 	XMStoreFloat4x4(&mView, V);
 
 	//纹理坐标旋转矩阵
- 	static float angle = 0.0f;
+	/*
+	static float angle = 0.0f;
 	angle += dt * 1;
 	XMMATRIX flareTrans = XMMatrixTranslation(0.5f, 0.5f, 0.0f);
 	XMMATRIX flareTransInv = XMMatrixTranslation(-0.5f, -0.5f, 0.0f);
 	XMMATRIX flareRotation = XMMatrixRotationZ(angle);
 	XMStoreFloat4x4(&mTexTransform, flareTransInv * flareRotation * flareTrans);
+	*/
+	//换成VS里实现，但仍需要旋转矩阵。相当于平移纹理坐标值的操作挪到了VS里
+	static float angle = 0.0f;
+	angle += dt * 1;
+	XMMATRIX flareRotationMtx = XMMatrixRotationZ(angle);
+	XMStoreFloat4x4(&mTexTransform, flareRotationMtx);
+
 
 	//zhy 笔记
 	//在这个旋转火球的例子中，最初一直很迷惑，虽然知道是平移+旋转+平移的套路，但不得其法。
