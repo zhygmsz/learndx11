@@ -35,12 +35,19 @@ BasicEffect::BasicEffect(ID3D11Device* device, const std::wstring& filename)
 	Light1Tech        = mFX->GetTechniqueByName("Light1");
 	Light2Tech        = mFX->GetTechniqueByName("Light2");
 	Light3Tech        = mFX->GetTechniqueByName("Light3");
+
+	Light1TexTech	  = mFX->GetTechniqueByName("Light1Tex");
+	Light2TexTech	  = mFX->GetTechniqueByName("Light2Tex");
+	Light3TexTech	  = mFX->GetTechniqueByName("Light3Tex");
+
 	WorldViewProj     = mFX->GetVariableByName("gWorldViewProj")->AsMatrix();
 	World             = mFX->GetVariableByName("gWorld")->AsMatrix();
 	WorldInvTranspose = mFX->GetVariableByName("gWorldInvTranspose")->AsMatrix();
+	TexTransform	  = mFX->GetVariableByName("gTexTransform")->AsMatrix();
 	EyePosW           = mFX->GetVariableByName("gEyePosW")->AsVector();
 	DirLights         = mFX->GetVariableByName("gDirLights");
 	Mat               = mFX->GetVariableByName("gMaterial");
+	DiffuseMap		  = mFX->GetVariableByName("gDiffuseMap")->AsShaderResource();
 }
 
 BasicEffect::~BasicEffect()
