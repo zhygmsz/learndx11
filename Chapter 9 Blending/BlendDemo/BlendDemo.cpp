@@ -83,7 +83,6 @@ private:
 	XMFLOAT4X4 mProj;
 
 	UINT mLandIndexCount;
-
 	XMFLOAT2 mWaterTexOffset;
 
 	RenderOptions mRenderOptions;
@@ -152,6 +151,7 @@ BlendApp::BlendApp(HINSTANCE hInstance)
 	mDirLights[2].Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	mDirLights[2].Direction = XMFLOAT3(0.0f, -0.707f, -0.707f);
 
+	//当只开启光照不开启纹理时，颜色只由这些材质决定
 	mLandMat.Ambient  = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	mLandMat.Diffuse  = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	mLandMat.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 16.0f);
@@ -310,7 +310,7 @@ void BlendApp::DrawScene()
 	md3dImmediateContext->IASetInputLayout(InputLayouts::Basic32);
     md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
  
-	float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
+	float blendFactor[] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 	UINT stride = sizeof(Vertex::Basic32);
     UINT offset = 0;

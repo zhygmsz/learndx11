@@ -55,8 +55,8 @@ void RenderStates::InitAll(ID3D11Device* device)
 	D3D11_BLEND_DESC transparentDesc = {0};
 	transparentDesc.AlphaToCoverageEnable = false;
 	transparentDesc.IndependentBlendEnable = false;
-
 	transparentDesc.RenderTarget[0].BlendEnable = true;
+	//下面这些系数，都是针对于混合系数的和混合方式的
 	transparentDesc.RenderTarget[0].SrcBlend       = D3D11_BLEND_SRC_ALPHA;
 	transparentDesc.RenderTarget[0].DestBlend      = D3D11_BLEND_INV_SRC_ALPHA;
 	transparentDesc.RenderTarget[0].BlendOp        = D3D11_BLEND_OP_ADD;
