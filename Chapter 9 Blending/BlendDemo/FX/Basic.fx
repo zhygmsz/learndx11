@@ -112,6 +112,9 @@ float4 PS(VertexOut pin, uniform int gLightCount, uniform bool gUseTexure, unifo
 		float4 spec    = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
 		// Sum the light contribution from each light source.  
+		//zhy 笔记
+		//展开循环，在生成指令时按照顺序生成，执行会快点
+		//一般针对于次数少的循环
 		[unroll]
 		for(int i = 0; i < gLightCount; ++i)
 		{
@@ -146,6 +149,9 @@ float4 PS(VertexOut pin, uniform int gLightCount, uniform bool gUseTexure, unifo
     return litColor;
 }
 
+//zhy 笔记
+//只开启光照，不开启纹理采样。
+//颜色只来自于Material和灯光属性，这种渲染出来的都是色块为主，没有真实感。
 technique11 Light1
 {
     pass P0
@@ -176,6 +182,9 @@ technique11 Light3
     }
 }
 
+//zhy 笔记
+//0个灯光，说明该渲染通道不使用灯光。但这种0灯光的情况下都会开启纹理采样
+//这样，纹理上什么颜色，最终显示什么颜色，不经过光照处理。
 technique11 Light0Tex
 {
     pass P0

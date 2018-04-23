@@ -83,7 +83,6 @@ private:
 	XMFLOAT4X4 mProj;
 
 	UINT mLandIndexCount;
-
 	XMFLOAT2 mWaterTexOffset;
 
 	RenderOptions mRenderOptions;
@@ -152,6 +151,7 @@ BlendApp::BlendApp(HINSTANCE hInstance)
 	mDirLights[2].Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	mDirLights[2].Direction = XMFLOAT3(0.0f, -0.707f, -0.707f);
 
+	//当只开启光照不开启纹理时，颜色只由这些材质决定
 	mLandMat.Ambient  = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	mLandMat.Diffuse  = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	mLandMat.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 16.0f);
@@ -310,7 +310,7 @@ void BlendApp::DrawScene()
 	md3dImmediateContext->IASetInputLayout(InputLayouts::Basic32);
     md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
  
-	float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
+	float blendFactor[] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 	UINT stride = sizeof(Vertex::Basic32);
     UINT offset = 0;
@@ -423,7 +423,9 @@ void BlendApp::DrawScene()
 		Effects::BasicFX->SetMaterial(mWavesMat);
 		Effects::BasicFX->SetDiffuseMap(mWavesMapSRV);
 
-		md3dImmediateContext->OMSetBlendState(RenderStates::TransparentBS, blendFactor, 0xffffffff);
+		//最后一个参数控制多重采样的开关，因为本例禁用了多重采样，所以把f换成e
+		//则在渲染的过程中禁止了采样，这样水就渲染不出来
+		md3dImmediateContext->OMSetBlendState(RenderStates::TransparentBS, blendFactor, 0xfffffffe);
 		landAndWavesTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
 		md3dImmediateContext->DrawIndexed(3*mWaves.TriangleCount(), 0, 0);
 
