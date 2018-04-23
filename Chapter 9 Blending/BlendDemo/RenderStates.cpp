@@ -9,6 +9,7 @@ ID3D11RasterizerState* RenderStates::NoCullRS    = 0;
 	 
 ID3D11BlendState*      RenderStates::AlphaToCoverageBS = 0;
 ID3D11BlendState*      RenderStates::TransparentBS     = 0;
+ID3D11BlendState*	   RenderStates::DisableRedAndGreen = 0;
 
 void RenderStates::InitAll(ID3D11Device* device)
 {
@@ -66,6 +67,21 @@ void RenderStates::InitAll(ID3D11Device* device)
 	transparentDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
 	HR(device->CreateBlendState(&transparentDesc, &TransparentBS));
+
+	//½ûÖ¹Ð´ÈëredºÍgreen
+	D3D11_BLEND_DESC disableRedAndGreenDesc = { 0 };
+	disableRedAndGreenDesc.AlphaToCoverageEnable = false;
+	disableRedAndGreenDesc.IndependentBlendEnable = false;
+	disableRedAndGreenDesc.RenderTarget[0].BlendEnable = true;
+	disableRedAndGreenDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	disableRedAndGreenDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	disableRedAndGreenDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	disableRedAndGreenDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	disableRedAndGreenDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	disableRedAndGreenDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	disableRedAndGreenDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_BLUE | D3D11_COLOR_WRITE_ENABLE_ALPHA;
+
+	HR(device->CreateBlendState(&disableRedAndGreenDesc, &DisableRedAndGreen));
 }
 
 void RenderStates::DestroyAll()
