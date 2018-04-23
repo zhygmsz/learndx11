@@ -423,7 +423,9 @@ void BlendApp::DrawScene()
 		Effects::BasicFX->SetMaterial(mWavesMat);
 		Effects::BasicFX->SetDiffuseMap(mWavesMapSRV);
 
-		md3dImmediateContext->OMSetBlendState(RenderStates::TransparentBS, blendFactor, 0xffffffff);
+		//最后一个参数控制多重采样的开关，因为本例禁用了多重采样，所以把f换成e
+		//则在渲染的过程中禁止了采样，这样水就渲染不出来
+		md3dImmediateContext->OMSetBlendState(RenderStates::TransparentBS, blendFactor, 0xfffffffe);
 		landAndWavesTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
 		md3dImmediateContext->DrawIndexed(3*mWaves.TriangleCount(), 0, 0);
 
