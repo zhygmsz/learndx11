@@ -408,6 +408,9 @@ void BlendApp::DrawScene()
 		//
 		// Draw the waves.
 		//
+		//zhy 笔记
+		//如果调换Land和Wave的绘制顺序，则水的半透明效果就没有了
+		//原因是半透明的渲染要在所有不透明物体之后
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mWavesVB, &stride, &offset);
 		md3dImmediateContext->IASetIndexBuffer(mWavesIB, DXGI_FORMAT_R32_UINT, 0);
 
