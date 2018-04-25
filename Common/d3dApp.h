@@ -35,6 +35,7 @@ public:
 	virtual void OnResize2();
 	virtual void UpdateScene(float dt)=0;
 	virtual void DrawScene()=0; 
+	virtual void DrawSceneCus(){}
 	virtual LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	// Convenience overrides for handling mouse input.

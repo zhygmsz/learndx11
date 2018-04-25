@@ -105,6 +105,7 @@ int D3DApp::Run()
 				CalculateFrameStats();
 				UpdateScene(mTimer.DeltaTime());	
 				DrawScene();
+				DrawSceneCus();
 			}
 			else
 			{

@@ -16,6 +16,9 @@ ID3D11DepthStencilState* RenderStates::MarkMirrorDSS     = 0;
 ID3D11DepthStencilState* RenderStates::DrawReflectionDSS = 0;
 ID3D11DepthStencilState* RenderStates::NoDoubleBlendDSS  = 0;
 
+ID3D11DepthStencilState* RenderStates::Exercises5WallDDS = 0;
+ID3D11DepthStencilState* RenderStates::Exercises5SkullDDS = 0;
+
 void RenderStates::InitAll(ID3D11Device* device)
 {
 	//
@@ -182,6 +185,48 @@ void RenderStates::InitAll(ID3D11Device* device)
 	noDoubleBlendDesc.BackFace.StencilFunc   = D3D11_COMPARISON_EQUAL;
 
 	HR(device->CreateDepthStencilState(&noDoubleBlendDesc, &NoDoubleBlendDSS));
+
+	D3D11_DEPTH_STENCIL_DESC exercises5WallDesc;
+	exercises5WallDesc.DepthEnable      = true;
+	exercises5WallDesc.DepthWriteMask   = D3D11_DEPTH_WRITE_MASK_ALL;
+	exercises5WallDesc.DepthFunc        = D3D11_COMPARISON_LESS; 
+	exercises5WallDesc.StencilEnable    = true;
+	exercises5WallDesc.StencilReadMask  = 0xff;
+	exercises5WallDesc.StencilWriteMask = 0xff;
+
+	exercises5WallDesc.FrontFace.StencilFailOp      = D3D11_STENCIL_OP_KEEP;
+	exercises5WallDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	exercises5WallDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	exercises5WallDesc.FrontFace.StencilFunc   = D3D11_COMPARISON_LESS;
+
+	// We are not rendering backfacing polygons, so these settings do not matter.
+	exercises5WallDesc.BackFace.StencilFailOp      = D3D11_STENCIL_OP_KEEP;
+	exercises5WallDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	exercises5WallDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	exercises5WallDesc.BackFace.StencilFunc   = D3D11_COMPARISON_LESS;
+
+	HR(device->CreateDepthStencilState(&exercises5WallDesc, &Exercises5WallDDS));
+
+	D3D11_DEPTH_STENCIL_DESC exercises5SkullDesc;
+	exercises5SkullDesc.DepthEnable      = true;
+	exercises5SkullDesc.DepthWriteMask   = D3D11_DEPTH_WRITE_MASK_ALL;
+	exercises5SkullDesc.DepthFunc        = D3D11_COMPARISON_LESS; 
+	exercises5SkullDesc.StencilEnable    = true;
+	exercises5SkullDesc.StencilReadMask  = 0xff;
+	exercises5SkullDesc.StencilWriteMask = 0xff;
+
+	exercises5SkullDesc.FrontFace.StencilFailOp      = D3D11_STENCIL_OP_KEEP;
+	exercises5SkullDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	exercises5SkullDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	exercises5SkullDesc.FrontFace.StencilFunc   = D3D11_COMPARISON_LESS;
+
+	// We are not rendering backfacing polygons, so these settings do not matter.
+	exercises5SkullDesc.BackFace.StencilFailOp      = D3D11_STENCIL_OP_KEEP;
+	exercises5SkullDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	exercises5SkullDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	exercises5SkullDesc.BackFace.StencilFunc   = D3D11_COMPARISON_LESS;
+
+	HR(device->CreateDepthStencilState(&exercises5SkullDesc, &Exercises5SkullDDS));
 }
 
 void RenderStates::DestroyAll()

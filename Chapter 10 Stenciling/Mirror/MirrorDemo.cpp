@@ -43,7 +43,7 @@ public:
 	void OnResize();
 	void UpdateScene(float dt);
 	void DrawScene(); 
-
+	void DrawSceneCus();
 	void OnMouseDown(WPARAM btnState, int x, int y);
 	void OnMouseUp(WPARAM btnState, int x, int y);
 	void OnMouseMove(WPARAM btnState, int x, int y);
@@ -540,6 +540,90 @@ void MirrorApp::DrawScene()
 	//不再往stencil buffer绘制镜子
 	//将skull reflection绘制的stencilref设置为0（默认的stencil buffer全是0）
 	//通过观察看到利用镜子实现的镜面反射效果，其实是一系列的视觉欺骗
+}
+
+//定制的绘制
+void MirrorApp::DrawSceneCus()
+{
+	return;
+
+	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::Black));
+	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, 1.0f, 1);
+
+	md3dImmediateContext->IASetInputLayout(InputLayouts::Basic32);
+	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	float blendFactor[] = {0.0f, 0.0f, 0.0f, 0.0f};
+
+	UINT stride = sizeof(Vertex::Basic32);
+	UINT offset = 0;
+
+	XMMATRIX view  = XMLoadFloat4x4(&mView);
+	XMMATRIX proj  = XMLoadFloat4x4(&mProj);
+	XMMATRIX viewProj = view*proj;
+
+	// Set per frame constants.
+	Effects::BasicFX->SetDirLights(mDirLights);
+	Effects::BasicFX->SetEyePosW(mEyePosW);
+	Effects::BasicFX->SetFogColor(Colors::Black);
+	Effects::BasicFX->SetFogStart(2.0f);
+	Effects::BasicFX->SetFogRange(40.0f);
+
+	ID3DX11EffectTechnique* activeTech = Effects::BasicFX->Light3TexTech;
+	ID3DX11EffectTechnique* activeSkullTech = Effects::BasicFX->Light3Tech;
+	D3DX11_TECHNIQUE_DESC techDesc;
+	activeTech->GetDesc(&techDesc);
+
+	// Wall
+	for (UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		ID3DX11EffectPass* pass = activeTech->GetPassByIndex(p);
+
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mRoomVB, &stride, &offset);
+
+		// Set per object constants.
+		XMMATRIX world = XMLoadFloat4x4(&mRoomWorld);
+		XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
+		XMMATRIX worldViewProj = world*view*proj;
+
+		Effects::BasicFX->SetWorld(world);
+		Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
+		Effects::BasicFX->SetWorldViewProj(worldViewProj);
+		Effects::BasicFX->SetTexTransform(XMMatrixIdentity());
+		Effects::BasicFX->SetMaterial(mRoomMat);
+
+		md3dImmediateContext->OMSetDepthStencilState(RenderStates::Exercises5WallDDS, 0);
+
+		Effects::BasicFX->SetDiffuseMap(mWallDiffuseMapSRV);
+		pass->Apply(0, md3dImmediateContext);
+		md3dImmediateContext->Draw(18, 6);
+	}
+
+	//Skull
+	activeSkullTech->GetDesc(&techDesc);
+	for (UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		ID3DX11EffectPass* pass = activeSkullTech->GetPassByIndex(p);
+
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mSkullVB, &stride, &offset);
+		md3dImmediateContext->IASetIndexBuffer(mSkullIB, DXGI_FORMAT_R32_UINT, 0);
+
+		XMMATRIX world = XMLoadFloat4x4(&mSkullWorld);
+		XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
+		XMMATRIX worldViewProj = world*view*proj;
+
+		Effects::BasicFX->SetWorld(world);
+		Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
+		Effects::BasicFX->SetWorldViewProj(worldViewProj);
+		Effects::BasicFX->SetMaterial(mSkullMat);
+
+		md3dImmediateContext->OMSetDepthStencilState(RenderStates::Exercises5SkullDDS, 0);
+
+		pass->Apply(0, md3dImmediateContext);
+		md3dImmediateContext->DrawIndexed(mSkullIndexCount, 0, 0);
+	}
+
+	HR(mSwapChain->Present(0, 0));
 }
 
 void MirrorApp::OnMouseDown(WPARAM btnState, int x, int y)
