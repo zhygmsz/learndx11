@@ -146,7 +146,7 @@ MirrorApp::MirrorApp(HINSTANCE hInstance)
 
 	// Reflected material is transparent so it blends into mirror.
 	mMirrorMat.Ambient  = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-	mMirrorMat.Diffuse  = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.5f);
+	mMirrorMat.Diffuse  = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.1f);
 	mMirrorMat.Specular = XMFLOAT4(0.4f, 0.4f, 0.4f, 16.0f);
 
 	mShadowMat.Ambient  = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -254,7 +254,13 @@ void MirrorApp::UpdateScene(float dt)
 	XMMATRIX skullRotate = XMMatrixRotationY(0.5f*MathHelper::Pi);
 	XMMATRIX skullScale = XMMatrixScaling(0.45f, 0.45f, 0.45f);
 	XMMATRIX skullOffset = XMMatrixTranslation(mSkullTranslation.x, mSkullTranslation.y, mSkullTranslation.z);
-	XMStoreFloat4x4(&mSkullWorld, skullRotate*skullScale*skullOffset);
+	XMStoreFloat4x4(&mSkullWorld, skullRotate*skullOffset*skullScale);
+	//zhy 笔记
+	//原本是旋转，缩放，平移的顺序，改成旋转，平移，缩放。但效果没有变化
+	//skull模型的Y坐标都是大于0的，也就是说，不对skull模型做变换则显示在XZ平面之上
+	//可缩放矩阵却看起来不是依据skull模型中心点的，而是依据世界坐标原点的
+	//本来大号的skull模型是贴着XZ平面的，如果以skull模型为中心缩小，肯定会稍微离开XZ平面，可是却没有
+	//unity的变换有针对局部空间的和世界空间的两组，而目前看dx里的都是基于世界空间的
 }
 
 void MirrorApp::DrawScene()
@@ -330,6 +336,13 @@ void MirrorApp::DrawScene()
 		pass->Apply(0, md3dImmediateContext);
 		md3dImmediateContext->Draw(6, 0);
 
+		//zhy 笔记
+		//在绘制地板的时候，没有设置纹理的缩放矩阵，只是在fx文件里定义了寻址模式为重复。
+		//因为在生成顶点的纹理坐标时已经做了放大处理。
+
+		//zhy 笔记
+		//绘制顶点用draw，因为本例中的room里的物体都是直接用顶点冗余连成三角形的，并没有用索引缓冲
+
 		// Wall
 		Effects::BasicFX->SetDiffuseMap(mWallDiffuseMapSRV);
 		pass->Apply(0, md3dImmediateContext);
@@ -365,6 +378,7 @@ void MirrorApp::DrawScene()
 	// Draw the mirror to stencil buffer only.
 	//
 
+	
 	activeTech->GetDesc( &techDesc );
 	for(UINT p = 0; p < techDesc.Passes; ++p)
     {
@@ -390,13 +404,13 @@ void MirrorApp::DrawScene()
 		md3dImmediateContext->OMSetDepthStencilState(RenderStates::MarkMirrorDSS, 1);
 		
 		pass->Apply(0, md3dImmediateContext);
-		md3dImmediateContext->Draw(6, 24);
+		//md3dImmediateContext->Draw(6, 24);
 
 		// Restore states.
 		md3dImmediateContext->OMSetDepthStencilState(0, 0);
 		md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
 	}
-
+	
 
 	//
 	// Draw the skull reflection.
@@ -437,7 +451,7 @@ void MirrorApp::DrawScene()
 		md3dImmediateContext->RSSetState(RenderStates::CullClockwiseRS);
 
 		// Only draw reflection into visible mirror pixels as marked by the stencil buffer. 
-		md3dImmediateContext->OMSetDepthStencilState(RenderStates::DrawReflectionDSS, 1);
+		md3dImmediateContext->OMSetDepthStencilState(RenderStates::DrawReflectionDSS, 0);
 		pass->Apply(0, md3dImmediateContext);
 		md3dImmediateContext->DrawIndexed(mSkullIndexCount, 0, 0);
 
@@ -520,6 +534,12 @@ void MirrorApp::DrawScene()
 	}
 
 	HR(mSwapChain->Present(0, 0));
+
+	//zhy 笔记
+	//修改镜子的漫反射贴图alpha分量，0.5->0.1
+	//不再往stencil buffer绘制镜子
+	//将skull reflection绘制的stencilref设置为0（默认的stencil buffer全是0）
+	//通过观察看到利用镜子实现的镜面反射效果，其实是一系列的视觉欺骗
 }
 
 void MirrorApp::OnMouseDown(WPARAM btnState, int x, int y)
@@ -621,13 +641,17 @@ void MirrorApp::BuildRoomGeometryBuffers()
 	v[23] = Vertex::Basic32( 7.5f, 4.0f, 0.0f, 0.0f, 0.0f, -1.0f, 6.0f, 1.0f);
 
 	// Mirror
-	v[24] = Vertex::Basic32(-2.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
+	v[24] = Vertex::Basic32(-2.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.8f);
 	v[25] = Vertex::Basic32(-2.5f, 4.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
 	v[26] = Vertex::Basic32( 2.5f, 4.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
+
+	//zhy 笔记
+	//这里镜子的长为5单位，高为4单位，但纹理坐标的最大值都设置到了1。而纹理是一个正方形
+	//最终的效果，镜子的X方向会被拉伸。
 	
-	v[27] = Vertex::Basic32(-2.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
+	v[27] = Vertex::Basic32(-2.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.8f);
 	v[28] = Vertex::Basic32( 2.5f, 4.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
-	v[29] = Vertex::Basic32( 2.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f);
+	v[29] = Vertex::Basic32( 2.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.8f);
 
 	D3D11_BUFFER_DESC vbd;
     vbd.Usage = D3D11_USAGE_IMMUTABLE;
@@ -638,6 +662,11 @@ void MirrorApp::BuildRoomGeometryBuffers()
     D3D11_SUBRESOURCE_DATA vinitData;
     vinitData.pSysMem = v;
     HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mRoomVB));
+
+	//zhy 笔记
+	//room只有顶点，没有索引
+	//因为在构造顶点的时候做了重复，顶点顺序里包含了完整的三角形顶点顺序。不再需要索引缓冲
+	//索引缓冲是一个额外的可选的结构，是为了配合剔除重复顶点而引入的。
 }
 
 void MirrorApp::BuildSkullGeometryBuffers()
