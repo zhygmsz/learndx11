@@ -101,20 +101,45 @@ TreeSpriteEffect::~TreeSpriteEffect()
 }
 #pragma endregion
 
+#pragma region CirclePoint
+CirclePointEffect::CirclePointEffect(ID3D11Device* device, const std::wstring& filename)
+	: Effect(device, filename)
+{
+	Light3Tech = mFX->GetTechniqueByName("Light3");
+	Light3FogTech = mFX->GetTechniqueByName("Light3Fog");
+
+	WorldViewProj = mFX->GetVariableByName("gWorldViewProj")->AsMatrix();
+	EyePosW = mFX->GetVariableByName("gEyePosW")->AsVector();
+	FogColor = mFX->GetVariableByName("gFogColor")->AsVector();
+	FogStart = mFX->GetVariableByName("gFogStart")->AsScalar();
+	FogRange = mFX->GetVariableByName("gFogRange")->AsScalar();
+	DirLights = mFX->GetVariableByName("gDirLights");
+	Mat = mFX->GetVariableByName("gMaterial");
+}
+
+CirclePointEffect::~CirclePointEffect()
+{
+
+}
+#pragma endregion 
+
 #pragma region Effects
 
 BasicEffect*      Effects::BasicFX      = 0;
 TreeSpriteEffect* Effects::TreeSpriteFX = 0;
+CirclePointEffect* Effects::CirclePointFX = 0;
 
 void Effects::InitAll(ID3D11Device* device)
 {
 	BasicFX = new BasicEffect(device, L"FX/Basic.fxo");
 	TreeSpriteFX = new TreeSpriteEffect(device, L"FX/TreeSprite.fxo");
+	CirclePointFX = new CirclePointEffect(device, L"FX/CirclePoint.fxo");
 }
 
 void Effects::DestroyAll()
 {
 	SafeDelete(BasicFX);
 	SafeDelete(TreeSpriteFX);
+	SafeDelete(CirclePointFX);
 }
 #pragma endregion

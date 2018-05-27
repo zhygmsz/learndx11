@@ -578,6 +578,35 @@ void GeometryGenerator::CreateGrid(float width, float depth, UINT m, UINT n, Mes
 	}
 }
 
+void GeometryGenerator::CreateCircle(UINT lines, MeshData& meshData)
+{
+	meshData.Vertices.clear();
+	meshData.Indices.clear();
+
+	if (lines % 2 != 0)
+	{
+		lines = lines + 1;
+	}
+	meshData.Vertices.resize(lines);
+	//圆上的边数量等于顶点数量
+	for (UINT idx = 0; idx < lines; ++idx)
+	{
+		meshData.Vertices[idx].Position.x = cosf(2 * MathHelper::Pi * idx / lines);
+		meshData.Vertices[idx].Position.y = 1.0f;
+		meshData.Vertices[idx].Position.z = sinf(2 * MathHelper::Pi * idx / lines);
+
+		meshData.Vertices[idx].Normal = meshData.Vertices[idx].Position;
+	}
+
+	meshData.Indices.resize(2 * lines);
+	for (UINT idx = 0; idx < lines; ++idx)
+	{
+		meshData.Indices[idx * 2] = idx;
+		meshData.Indices[idx * 2 + 1] = idx + 1;
+	}
+	meshData.Indices[2 * lines - 1] = 0;
+}
+
 void GeometryGenerator::CreateFullscreenQuad(MeshData& meshData)
 {
 	meshData.Vertices.resize(4);

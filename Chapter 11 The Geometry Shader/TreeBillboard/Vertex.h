@@ -29,6 +29,12 @@ namespace Vertex
 		XMFLOAT3 Pos;
 		XMFLOAT2 Size;
 	};
+
+	struct CirclePoint
+	{
+		XMFLOAT3 Pos;
+		XMFLOAT3 Normal;
+	};
 }
 
 class InputLayoutDesc
@@ -37,6 +43,7 @@ public:
 	// Init like const int A::a[4] = {0, 1, 2, 3}; in .cpp file.
 	static const D3D11_INPUT_ELEMENT_DESC Basic32[3];
 	static const D3D11_INPUT_ELEMENT_DESC TreePointSprite[2];
+	static const D3D11_INPUT_ELEMENT_DESC CirclePoint[2];
 };
 
 class InputLayouts
@@ -47,6 +54,7 @@ public:
 
 	static ID3D11InputLayout* Basic32;
 	static ID3D11InputLayout* TreePointSprite;
+	static ID3D11InputLayout* CirclePoint;
 };
 
 #endif // VERTEX_H

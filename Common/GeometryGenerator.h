@@ -81,6 +81,8 @@ public:
 	///</summary>
 	void CreateFullscreenQuad(MeshData& meshData);
 
+	void CreateCircle(UINT lines, MeshData& meshData);
+
 private:
 	void Subdivide(MeshData& meshData);
 	void BuildCylinderTopCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData);
