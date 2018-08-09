@@ -52,12 +52,17 @@ void InputLayouts::InitAll(ID3D11Device* device)
 		passDesc.IAInputSignatureSize, &TreePointSprite));
 
 
+	Effects::SphereFX->Light3Tech->GetPassByIndex(0)->GetDesc(&passDesc);
+	HR(device->CreateInputLayout(InputLayoutDesc::SpherePoint, 3, passDesc.pIAInputSignature,
+		passDesc.IAInputSignatureSize, &SpherePoint));
 }
 
 void InputLayouts::DestroyAll()
 {
 	ReleaseCOM(Basic32);
 	ReleaseCOM(TreePointSprite);
+	ReleaseCOM(SpherePoint);
+	
 }
 
 #pragma endregion

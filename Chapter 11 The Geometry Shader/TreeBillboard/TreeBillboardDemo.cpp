@@ -54,7 +54,10 @@ private:
 	void BuildWaveGeometryBuffers();
 	void BuildCrateGeometryBuffers();
 	void BuildTreeSpritesBuffer();
+	void BuildSphereBuffer();
+
 	void DrawTreeSprites(CXMMATRIX viewProj);
+	void DrawSphere(CXMMATRIX viewProj);
 
 private:
 	ID3D11Buffer* mLandVB;
@@ -68,10 +71,14 @@ private:
 
 	ID3D11Buffer* mTreeSpritesVB;
 
+	ID3D11Buffer* mSphereVB;
+	ID3D11Buffer* mSphereIB;
+
 	ID3D11ShaderResourceView* mGrassMapSRV;
 	ID3D11ShaderResourceView* mWavesMapSRV;
 	ID3D11ShaderResourceView* mBoxMapSRV;
 	ID3D11ShaderResourceView* mTreeTextureMapArraySRV;
+	ID3D11ShaderResourceView* mSphereMapSRV;
 
 	Waves mWaves;
 
@@ -80,17 +87,21 @@ private:
 	Material mWavesMat;
 	Material mBoxMat;
 	Material mTreeMat;
+	Material mSphereMat;
 
 	XMFLOAT4X4 mGrassTexTransform;
 	XMFLOAT4X4 mWaterTexTransform;
 	XMFLOAT4X4 mLandWorld;
 	XMFLOAT4X4 mWavesWorld;
 	XMFLOAT4X4 mBoxWorld;
+	XMFLOAT4X4 mSphereWorld;
 
 	XMFLOAT4X4 mView;
 	XMFLOAT4X4 mProj;
 
 	UINT mLandIndexCount;
+
+	UINT mSphereIndexCount;
 
 	static const UINT TreeCount = 16;
 
@@ -126,8 +137,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 }
 
 TreeBillboardApp::TreeBillboardApp(HINSTANCE hInstance)
-: D3DApp(hInstance), mLandVB(0), mLandIB(0), mWavesVB(0), mWavesIB(0), mBoxVB(0), mBoxIB(0), mTreeSpritesVB(0),
-  mGrassMapSRV(0), mWavesMapSRV(0), mBoxMapSRV(0), mAlphaToCoverageOn(true),
+: D3DApp(hInstance), mLandVB(0), mLandIB(0), mWavesVB(0), mWavesIB(0), mBoxVB(0), mBoxIB(0), mTreeSpritesVB(0), mSphereVB(0), mSphereIB(0),
+  mGrassMapSRV(0), mWavesMapSRV(0), mBoxMapSRV(0), mTreeTextureMapArraySRV(0), mSphereMapSRV(0), mAlphaToCoverageOn(true),
   mWaterTexOffset(0.0f, 0.0f), mEyePosW(0.0f, 0.0f, 0.0f), mLandIndexCount(0), mRenderOptions(RenderOptions::TexturesAndFog),
   mTheta(1.3f*MathHelper::Pi), mPhi(0.4f*MathHelper::Pi), mRadius(80.0f)
 {
@@ -149,6 +160,11 @@ TreeBillboardApp::TreeBillboardApp(HINSTANCE hInstance)
 
 	XMMATRIX grassTexScale = XMMatrixScaling(5.0f, 5.0f, 0.0f);
 	XMStoreFloat4x4(&mGrassTexTransform, grassTexScale);
+
+	XMMATRIX sphereScale = XMMatrixScaling(10.0f, 10.0f, 10.0f);
+	XMMATRIX sphereOffset = XMMatrixTranslation(0.0f, 10.0f, 0.0f);
+	XMStoreFloat4x4(&mSphereWorld, sphereScale * sphereOffset);
+
 
 	mDirLights[0].Ambient  = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
 	mDirLights[0].Diffuse  = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
@@ -180,6 +196,10 @@ TreeBillboardApp::TreeBillboardApp(HINSTANCE hInstance)
 	mTreeMat.Ambient  = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	mTreeMat.Diffuse  = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	mTreeMat.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 16.0f);
+
+	mSphereMat.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	mSphereMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	mSphereMat.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 16.0f);
 }
 
 TreeBillboardApp::~TreeBillboardApp()
@@ -191,11 +211,14 @@ TreeBillboardApp::~TreeBillboardApp()
 	ReleaseCOM(mWavesIB);
 	ReleaseCOM(mBoxVB);
 	ReleaseCOM(mBoxIB);
+	ReleaseCOM(mSphereVB);
+	ReleaseCOM(mSphereIB);
 	ReleaseCOM(mTreeSpritesVB);
 	ReleaseCOM(mGrassMapSRV);
 	ReleaseCOM(mWavesMapSRV);
 	ReleaseCOM(mBoxMapSRV);
 	ReleaseCOM(mTreeTextureMapArraySRV);
+	ReleaseCOM(mSphereMapSRV);
 
 	Effects::DestroyAll();
 	InputLayouts::DestroyAll();
@@ -238,6 +261,7 @@ bool TreeBillboardApp::Init()
 	BuildWaveGeometryBuffers();
 	BuildCrateGeometryBuffers();
 	BuildTreeSpritesBuffer();
+	BuildSphereBuffer();
 
 	return true;
 }
@@ -354,7 +378,9 @@ void TreeBillboardApp::DrawScene()
 	// Draw the tree sprites
 	//
 
-	DrawTreeSprites(viewProj);
+	//DrawTreeSprites(viewProj);
+
+	DrawSphere(viewProj);
 
 	//
 	// DrawTreeSprites() changes InputLayout and PrimitiveTopology, so change it based on 
@@ -773,5 +799,114 @@ void TreeBillboardApp::DrawTreeSprites(CXMMATRIX viewProj)
 		md3dImmediateContext->Draw(TreeCount, 0);
 
 		md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
+	}
+}
+
+void TreeBillboardApp::BuildSphereBuffer()
+{
+	const float X = 0.525731f;
+	const float Z = 0.850651f;
+
+	const UINT PosNum = 12;
+	const UINT IdxNum = 60;
+	mSphereIndexCount = IdxNum;
+	
+	// 12 unique vertices
+	XMFLOAT3 pos[PosNum] =
+	{
+		XMFLOAT3(-X, 0.0f, Z), XMFLOAT3(X, 0.0f, Z),
+		XMFLOAT3(-X, 0.0f, -Z), XMFLOAT3(X, 0.0f, -Z),
+		XMFLOAT3(0.0f, Z, X), XMFLOAT3(0.0f, Z, -X),
+		XMFLOAT3(0.0f, -Z, X), XMFLOAT3(0.0f, -Z, -X),
+		XMFLOAT3(Z, X, 0.0f), XMFLOAT3(-Z, X, 0.0f),
+		XMFLOAT3(Z, -X, 0.0f), XMFLOAT3(-Z, -X, 0.0f)
+	};
+	std::vector<Vertex::SpherePoint> vertices(PosNum);
+	for (size_t i = 0; i < PosNum; ++i)
+	{
+		vertices[i].Pos = pos[i];
+		vertices[i].Normal = XMFLOAT3(1, 1, 1);
+		vertices[i].Tex = XMFLOAT2(1, 1);
+	}
+
+	D3D11_BUFFER_DESC vbd;
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(Vertex::SpherePoint) * PosNum;
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbd.CPUAccessFlags = 0;
+	vbd.MiscFlags = 0;
+	D3D11_SUBRESOURCE_DATA vinitData;
+	vinitData.pSysMem = &vertices[0];
+	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mSphereVB));
+
+	// 20 triangles
+	UINT k[IdxNum] =
+	{
+		1,4,0, 4,9,0, 4,5,9, 8,5,4, 1,8,4,
+		1,10,8, 10,3,8, 8,3,5, 3,2,5, 3,7,2,
+		3,10,7, 10,6,7, 6,11,7, 6,0,11, 6,1,0,
+		10,1,6, 11,0,9, 2,11,9, 5,2,9, 11,2,7
+	};
+
+	D3D11_BUFFER_DESC ibd;
+	ibd.Usage = D3D11_USAGE_IMMUTABLE;
+	ibd.ByteWidth = sizeof(UINT) * IdxNum;
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	ibd.CPUAccessFlags = 0;
+	ibd.MiscFlags = 0;
+	D3D11_SUBRESOURCE_DATA iinitData;
+	iinitData.pSysMem = &k[0];
+	HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mSphereIB));
+}
+
+void TreeBillboardApp::DrawSphere(CXMMATRIX viewProj)
+{
+	md3dImmediateContext->IASetInputLayout(InputLayouts::SpherePoint);
+	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	UINT stride = sizeof(Vertex::SpherePoint);
+	UINT offset = 0;
+
+	//per frame
+	Effects::SphereFX->SetDirLights(mDirLights);
+	Effects::SphereFX->SetEyePosW(mEyePosW);
+	Effects::SphereFX->SetFogColor(Colors::Silver);
+	Effects::SphereFX->SetFogStart(15.0f);
+	Effects::SphereFX->SetFogRange(175.0f);
+
+	//figure out a tech
+	ID3DX11EffectTechnique* sphereTech;
+	switch (mRenderOptions)
+	{
+	case RenderOptions::Lighting:
+		sphereTech = Effects::SphereFX->Light3Tech;
+		break;
+	case RenderOptions::Textures:
+		sphereTech = Effects::SphereFX->Light3TexAlphaClipTech;
+		break;
+	case RenderOptions::TexturesAndFog:
+		sphereTech = Effects::SphereFX->Light3TexAlphaClipFogTech;
+		break;
+	}
+
+	D3DX11_TECHNIQUE_DESC techDesc;
+	sphereTech->GetDesc(&techDesc);
+	for (UINT p = 0, max = techDesc.Passes; p < max; ++p)
+	{
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mSphereVB, &stride, &offset);
+		md3dImmediateContext->IASetIndexBuffer(mSphereIB, DXGI_FORMAT_R32_UINT, 0);
+
+		XMMATRIX world = XMLoadFloat4x4(&mSphereWorld);
+		XMMATRIX worldViewProj = world * viewProj;
+
+		Effects::SphereFX->SetWorld(world);
+		Effects::SphereFX->SetWorldViewProj(worldViewProj);
+		Effects::SphereFX->SetMaterial(mSphereMat);
+
+		md3dImmediateContext->RSSetState(RenderStates::NoCullWireframeRS);
+		sphereTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+		md3dImmediateContext->DrawIndexed(mSphereIndexCount, 0, 0);
+
+		md3dImmediateContext->RSSetState(0);
 	}
 }
