@@ -893,12 +893,16 @@ void TreeBillboardApp::DrawSphere(CXMMATRIX viewProj)
 	sphereTech->GetDesc(&techDesc);
 	for (UINT p = 0, max = techDesc.Passes; p < max; ++p)
 	{
+		//zhe 笔记
+		//下面的两个方法，在之前的demo中有放在pass循环里的，也有放到循环外的
+		//针对该VB和IB的顶点，应用下面的变换以及各种状态，放到循环里是比较好的方式
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mSphereVB, &stride, &offset);
 		md3dImmediateContext->IASetIndexBuffer(mSphereIB, DXGI_FORMAT_R32_UINT, 0);
 
 		XMMATRIX world = XMLoadFloat4x4(&mSphereWorld);
 		XMMATRIX worldViewProj = world * viewProj;
 
+		//per object
 		Effects::SphereFX->SetWorld(world);
 		Effects::SphereFX->SetWorldViewProj(worldViewProj);
 		Effects::SphereFX->SetMaterial(mSphereMat);

@@ -54,6 +54,8 @@ struct GeoOut
 	float2 Tex		: TEXCOORD;
 	uint   PrimID	: SV_PrimitiveID;
 };
+//zhy 笔记
+//GeoOut结构体在定义的最后漏了分号，导致出错，说VertexOut重定义了
 
 VertexOut VS(VertexIn vin)
 {
@@ -65,6 +67,11 @@ VertexOut VS(VertexIn vin)
 
 	return vout;
 }
+
+//zhy 笔记
+//如果没有GS，则在VS内就把顶点转换到齐次裁剪空间了
+//如果有了GS，则转换顶点的工作最好不要放在VS里，因为GS里还是需要PosL去做计算
+//VS里不对顶点数据做任何处理，直接传给GS，GS在一层计算后，再把所有生成的顶点统一转换到其次裁剪空间
 
 [maxvertexcount(24)]
 void GS(triangle VertexOut gin[3], inout TriangleStream<GeoOut> triStream)
@@ -105,7 +112,9 @@ void GS(triangle VertexOut gin[3], inout TriangleStream<GeoOut> triStream)
 		gout[i].Normal = outVerts[i].Normal;
 		gout[i].Tex = outVerts[i].Tex;
 	}
-
+	//zhy 笔记
+	//fx文件里的for循环内的变量的作用域是当前函数的，而不是for循环内部的
+	//所以，不同的for循环得用不同的循环变量
 	[unroll]
 	for (int j = 0; j < 5; ++j)
 	{
