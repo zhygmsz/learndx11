@@ -55,9 +55,11 @@ private:
 	void BuildCrateGeometryBuffers();
 	void BuildTreeSpritesBuffer();
 	void BuildSphereBuffer();
+	void BuildCircleBuffer();
 
 	void DrawTreeSprites(CXMMATRIX viewProj);
 	void DrawSphere(CXMMATRIX viewProj);
+	void DrawCircle(CXMMATRIX viewProj);
 
 private:
 	ID3D11Buffer* mLandVB;
@@ -74,6 +76,9 @@ private:
 	ID3D11Buffer* mSphereVB;
 	ID3D11Buffer* mSphereIB;
 
+	ID3D11Buffer* mCircleVB;
+	ID3D11Buffer* mCircleIB;
+
 	ID3D11ShaderResourceView* mGrassMapSRV;
 	ID3D11ShaderResourceView* mWavesMapSRV;
 	ID3D11ShaderResourceView* mBoxMapSRV;
@@ -88,6 +93,7 @@ private:
 	Material mBoxMat;
 	Material mTreeMat;
 	Material mSphereMat;
+	Material mCircleMat;
 
 	XMFLOAT4X4 mGrassTexTransform;
 	XMFLOAT4X4 mWaterTexTransform;
@@ -100,8 +106,8 @@ private:
 	XMFLOAT4X4 mProj;
 
 	UINT mLandIndexCount;
-
 	UINT mSphereIndexCount;
+	UINT mCircleIndexCount;
 
 	static const UINT TreeCount = 16;
 
@@ -137,9 +143,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 }
 
 TreeBillboardApp::TreeBillboardApp(HINSTANCE hInstance)
-: D3DApp(hInstance), mLandVB(0), mLandIB(0), mWavesVB(0), mWavesIB(0), mBoxVB(0), mBoxIB(0), mTreeSpritesVB(0), mSphereVB(0), mSphereIB(0),
+: D3DApp(hInstance), mLandVB(0), mLandIB(0), mWavesVB(0), mWavesIB(0), mBoxVB(0), mBoxIB(0), mTreeSpritesVB(0), mSphereVB(0), mSphereIB(0), mCircleVB(0), mCircleIB(0),
   mGrassMapSRV(0), mWavesMapSRV(0), mBoxMapSRV(0), mTreeTextureMapArraySRV(0), mSphereMapSRV(0), mAlphaToCoverageOn(true),
-  mWaterTexOffset(0.0f, 0.0f), mEyePosW(0.0f, 0.0f, 0.0f), mLandIndexCount(0), mRenderOptions(RenderOptions::TexturesAndFog),
+  mWaterTexOffset(0.0f, 0.0f), mEyePosW(0.0f, 0.0f, 0.0f), mLandIndexCount(0), mSphereIndexCount(0), mCircleIndexCount(0), mRenderOptions(RenderOptions::TexturesAndFog),
   mTheta(1.3f*MathHelper::Pi), mPhi(0.4f*MathHelper::Pi), mRadius(80.0f)
 {
 	mMainWndCaption = L"Tree Billboard Demo";
@@ -200,6 +206,11 @@ TreeBillboardApp::TreeBillboardApp(HINSTANCE hInstance)
 	mSphereMat.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	mSphereMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	mSphereMat.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 16.0f);
+
+	//材质待定，可是设置成显眼的颜色
+	mCircleMat.Ambient  = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	mCircleMat.Diffuse  = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
+	mCircleMat.Specular = XMFLOAT4(0.0f, 0.0f, 1.0f, 16.0f);
 }
 
 TreeBillboardApp::~TreeBillboardApp()
@@ -213,6 +224,8 @@ TreeBillboardApp::~TreeBillboardApp()
 	ReleaseCOM(mBoxIB);
 	ReleaseCOM(mSphereVB);
 	ReleaseCOM(mSphereIB);
+	ReleaseCOM(mCircleVB);
+	ReleaseCOM(mCircleIB);
 	ReleaseCOM(mTreeSpritesVB);
 	ReleaseCOM(mGrassMapSRV);
 	ReleaseCOM(mWavesMapSRV);
@@ -262,6 +275,7 @@ bool TreeBillboardApp::Init()
 	BuildCrateGeometryBuffers();
 	BuildTreeSpritesBuffer();
 	BuildSphereBuffer();
+	BuildCircleBuffer();
 
 	return true;
 }
@@ -380,7 +394,9 @@ void TreeBillboardApp::DrawScene()
 
 	//DrawTreeSprites(viewProj);
 
-	DrawSphere(viewProj);
+	//DrawSphere(viewProj);
+
+	DrawCircle(viewProj);
 
 	//
 	// DrawTreeSprites() changes InputLayout and PrimitiveTopology, so change it based on 
@@ -910,6 +926,83 @@ void TreeBillboardApp::DrawSphere(CXMMATRIX viewProj)
 		md3dImmediateContext->RSSetState(RenderStates::NoCullWireframeRS);
 		sphereTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
 		md3dImmediateContext->DrawIndexed(mSphereIndexCount, 0, 0);
+
+		md3dImmediateContext->RSSetState(0);
+	}
+}
+
+void TreeBillboardApp::BuildCircleBuffer()
+{
+	GeometryGenerator::MeshData circle;
+
+	GeometryGenerator geoGen;
+	geoGen.CreateCircle(20, circle);
+
+	std::vector<Vertex::CirclePoint> vertices(circle.Vertices.size());
+
+	for (UINT idx = 0, max = circle.Vertices.size(); idx < max; ++idx)
+	{
+		vertices[idx].Pos = circle.Vertices[idx].Position;
+		vertices[idx].Normal = circle.Vertices[idx].Normal;
+	}
+
+	D3D11_BUFFER_DESC vbd;
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(Vertex::CirclePoint) * circle.Vertices.size();
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbd.CPUAccessFlags = 0;
+	vbd.MiscFlags = 0;
+	D3D11_SUBRESOURCE_DATA vinitData;
+	vinitData.pSysMem = &vertices[0];
+	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mCircleVB));
+
+	D3D11_BUFFER_DESC ibd;
+	ibd.Usage = D3D11_USAGE_IMMUTABLE;
+	ibd.ByteWidth = sizeof(UINT) * circle.Indices.size();
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	ibd.CPUAccessFlags = 0;
+	ibd.MiscFlags = 0;
+	D3D11_SUBRESOURCE_DATA iinitData;
+	iinitData.pSysMem = &circle.Indices[0];
+	HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mCircleIB));
+
+	mCircleIndexCount = circle.Indices.size();
+}
+
+void TreeBillboardApp::DrawCircle(CXMMATRIX viewProj)
+{
+	md3dImmediateContext->IASetInputLayout(InputLayouts::CirclePoint);
+	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+	XMMATRIX scale = XMMatrixScaling(5.0f, 5.0f, 5.0f);
+	XMMATRIX worldViewProj = scale * viewProj;
+
+	UINT stride = sizeof(Vertex::CirclePoint);
+	UINT offset = 0;
+
+	Effects::CirclePointFX->SetDirLights(mDirLights);
+	Effects::CirclePointFX->SetEyePosW(mEyePosW);
+	Effects::CirclePointFX->SetFogColor(Colors::Silver);
+	Effects::CirclePointFX->SetFogStart(15.0f);
+	Effects::CirclePointFX->SetFogRange(175.0f);
+
+	ID3DX11EffectTechnique* circleTech = Effects::CirclePointFX->Light3Tech;
+
+	D3DX11_TECHNIQUE_DESC techDesc;
+	circleTech->GetDesc(&techDesc);
+	for (UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mCircleVB, &stride, &offset);
+		md3dImmediateContext->IASetIndexBuffer(mCircleIB, DXGI_FORMAT_R32_UINT, 0);
+
+		Effects::CirclePointFX->SetWorldViewProj(worldViewProj);
+		Effects::CirclePointFX->SetMaterial(mCircleMat);
+
+		//md3dImmediateContext->RSSetState(RenderStates::NoCullRS);
+		md3dImmediateContext->RSSetState(RenderStates::WireframeAndNoCullRS);
+
+		circleTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+		md3dImmediateContext->DrawIndexed(mCircleIndexCount, 0, 0);
 
 		md3dImmediateContext->RSSetState(0);
 	}

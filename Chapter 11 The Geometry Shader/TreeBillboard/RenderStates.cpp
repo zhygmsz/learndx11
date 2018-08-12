@@ -8,6 +8,7 @@ ID3D11RasterizerState* RenderStates::WireframeRS     = 0;
 ID3D11RasterizerState* RenderStates::NoCullRS        = 0;
 ID3D11RasterizerState* RenderStates::CullClockwiseRS = 0;
 ID3D11RasterizerState* RenderStates::NoCullWireframeRS = 0;
+ID3D11RasterizerState* RenderStates::WireframeAndNoCullRS = 0;
 	 
 ID3D11BlendState*      RenderStates::AlphaToCoverageBS      = 0;
 ID3D11BlendState*      RenderStates::TransparentBS          = 0;
@@ -68,6 +69,16 @@ void RenderStates::InitAll(ID3D11Device* device)
 	noCullWireframeDesc.DepthClipEnable = true;
 
 	HR(device->CreateRasterizerState(&noCullWireframeDesc, &NoCullWireframeRS));
+
+	// WireframeAndNoCullRS
+	D3D11_RASTERIZER_DESC wireframeAndNoCullDesc;
+	ZeroMemory(&wireframeAndNoCullDesc, sizeof(D3D11_RASTERIZER_DESC));
+	wireframeAndNoCullDesc.FillMode = D3D11_FILL_WIREFRAME;
+	wireframeAndNoCullDesc.CullMode = D3D11_CULL_NONE;
+	wireframeAndNoCullDesc.FrontCounterClockwise = false;
+	wireframeAndNoCullDesc.DepthClipEnable = true;
+
+	HR(device->CreateRasterizerState(&wireframeAndNoCullDesc, &WireframeAndNoCullRS));
 
 	//
 	// AlphaToCoverageBS
@@ -201,6 +212,7 @@ void RenderStates::DestroyAll()
 	ReleaseCOM(NoCullRS);
 	ReleaseCOM(CullClockwiseRS);
 	ReleaseCOM(NoCullWireframeRS);
+	ReleaseCOM(WireframeAndNoCullRS);
 
 	ReleaseCOM(AlphaToCoverageBS);
 	ReleaseCOM(TransparentBS);

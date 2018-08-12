@@ -36,6 +36,12 @@ namespace Vertex
 		XMFLOAT3 Normal;
 		XMFLOAT2 Tex;
 	};
+
+	struct CirclePoint
+	{
+		XMFLOAT3 Pos;
+		XMFLOAT3 Normal;
+	};
 }
 
 class InputLayoutDesc
@@ -45,6 +51,7 @@ public:
 	static const D3D11_INPUT_ELEMENT_DESC Basic32[3];
 	static const D3D11_INPUT_ELEMENT_DESC TreePointSprite[2];
 	static const D3D11_INPUT_ELEMENT_DESC SpherePoint[3];
+	static const D3D11_INPUT_ELEMENT_DESC CirclePoint[2];
 };
 
 class InputLayouts
@@ -56,6 +63,7 @@ public:
 	static ID3D11InputLayout* Basic32;
 	static ID3D11InputLayout* TreePointSprite;
 	static ID3D11InputLayout* SpherePoint;
+	static ID3D11InputLayout* CirclePoint;
 };
 
 #endif // VERTEX_H
