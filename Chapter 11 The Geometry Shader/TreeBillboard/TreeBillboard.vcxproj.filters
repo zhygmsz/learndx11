@@ -105,5 +105,8 @@
     <CustomBuild Include="FX\Sphere.fx">
       <Filter>FX</Filter>
     </CustomBuild>
+    <CustomBuild Include="FX\CirclePoint.fx">
+      <Filter>FX</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>
