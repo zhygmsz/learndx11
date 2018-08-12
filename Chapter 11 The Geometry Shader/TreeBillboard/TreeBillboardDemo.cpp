@@ -394,7 +394,9 @@ void TreeBillboardApp::DrawScene()
 
 	DrawTreeSprites(viewProj);
 
-	DrawSphere(viewProj);
+	//DrawSphere(viewProj);
+
+	DrawCircle(viewProj);
 
 	DrawCircle(viewProj);
 
