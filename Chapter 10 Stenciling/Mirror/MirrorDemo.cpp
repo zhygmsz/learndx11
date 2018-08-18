@@ -146,7 +146,7 @@ MirrorApp::MirrorApp(HINSTANCE hInstance)
 
 	// Reflected material is transparent so it blends into mirror.
 	mMirrorMat.Ambient  = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-	mMirrorMat.Diffuse  = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.1f);
+	mMirrorMat.Diffuse  = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.5f);
 	mMirrorMat.Specular = XMFLOAT4(0.4f, 0.4f, 0.4f, 16.0f);
 
 	mShadowMat.Ambient  = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -254,12 +254,12 @@ void MirrorApp::UpdateScene(float dt)
 	XMMATRIX skullRotate = XMMatrixRotationY(0.5f*MathHelper::Pi);
 	XMMATRIX skullScale = XMMatrixScaling(0.45f, 0.45f, 0.45f);
 	XMMATRIX skullOffset = XMMatrixTranslation(mSkullTranslation.x, mSkullTranslation.y, mSkullTranslation.z);
-	XMStoreFloat4x4(&mSkullWorld, skullRotate*skullOffset*skullScale);
+	XMStoreFloat4x4(&mSkullWorld, skullRotate*skullScale*skullOffset);
 	//zhy 笔记
-	//原本是旋转，缩放，平移的顺序，改成旋转，平移，缩放。但效果没有变化
-	//skull模型的Y坐标都是大于0的，也就是说，不对skull模型做变换则显示在XZ平面之上
-	//可缩放矩阵却看起来不是依据skull模型中心点的，而是依据世界坐标原点的
-	//本来大号的skull模型是贴着XZ平面的，如果以skull模型为中心缩小，肯定会稍微离开XZ平面，可是却没有
+	//1：沿着Y轴的正方向观察，旋转弧度为正数则为逆时针，旋转弧度为负数则为顺时针
+	//2：skull模型的模型坐标系内，Y坐标都是大于0的，也就是说，不对skull模型做变换则显示在XZ平面之上
+	//3：skull的变换矩阵为旋转，缩放，平移，当改成旋转，平移缩放时skull距离镜面和地面更近了
+	//可缩放矩阵却看起来不是依据skull模型中心点的，而是依据世界坐标原点的，大号skull不在世界坐标原点处执行缩小，会导致其整体上朝着原点靠拢
 	//unity的变换有针对局部空间的和世界空间的两组，而目前看dx里的都是基于世界空间的
 }
 
@@ -337,8 +337,8 @@ void MirrorApp::DrawScene()
 		md3dImmediateContext->Draw(6, 0);
 
 		//zhy 笔记
-		//在绘制地板的时候，没有设置纹理的缩放矩阵，只是在fx文件里定义了寻址模式为重复。
-		//因为在生成顶点的纹理坐标时已经做了放大处理。
+		//在绘制地板的时候，没有设置纹理的缩放矩阵，只是在fx文件里定义了寻址模式为重复。又在生成顶点的纹理坐标时对纹理坐标值做了放大
+		//也就是说当纹理寻址模式为重复时，纹理坐标为[0, 1]区间的直接取其坐标值，如果纹理坐标值大于1则重新计算并落在(0, 1]区间
 
 		//zhy 笔记
 		//绘制顶点用draw，因为本例中的room里的物体都是直接用顶点冗余连成三角形的，并没有用索引缓冲
@@ -404,7 +404,7 @@ void MirrorApp::DrawScene()
 		md3dImmediateContext->OMSetDepthStencilState(RenderStates::MarkMirrorDSS, 1);
 		
 		pass->Apply(0, md3dImmediateContext);
-		//md3dImmediateContext->Draw(6, 24);
+		md3dImmediateContext->Draw(6, 24);
 
 		// Restore states.
 		md3dImmediateContext->OMSetDepthStencilState(0, 0);
@@ -451,7 +451,7 @@ void MirrorApp::DrawScene()
 		md3dImmediateContext->RSSetState(RenderStates::CullClockwiseRS);
 
 		// Only draw reflection into visible mirror pixels as marked by the stencil buffer. 
-		md3dImmediateContext->OMSetDepthStencilState(RenderStates::DrawReflectionDSS, 0);
+		md3dImmediateContext->OMSetDepthStencilState(RenderStates::DrawReflectionDSS, 1);
 		pass->Apply(0, md3dImmediateContext);
 		md3dImmediateContext->DrawIndexed(mSkullIndexCount, 0, 0);
 
@@ -512,6 +512,7 @@ void MirrorApp::DrawScene()
 		XMVECTOR shadowPlane = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f); // xz plane
 		XMVECTOR toMainLight = -XMLoadFloat3(&mDirLights[0].Direction);
 		XMMATRIX S =  XMMatrixShadow(shadowPlane, toMainLight);
+		//将投影矩阵稍微沿着Y轴往上提一提，显示在XZ平面之上
 		XMMATRIX shadowOffsetY = XMMatrixTranslation(0.0f, 0.001f, 0.0f);
 
 		// Set per object constants.
@@ -613,6 +614,9 @@ void MirrorApp::BuildRoomGeometryBuffers()
 	v[3] = Vertex::Basic32(-3.5f, 0.0f, -10.0f, 0.0f, 1.0f, 0.0f, 0.0f, 4.0f);
 	v[4] = Vertex::Basic32( 7.5f, 0.0f,   0.0f, 0.0f, 1.0f, 0.0f, 4.0f, 0.0f);
 	v[5] = Vertex::Basic32( 7.5f, 0.0f, -10.0f, 0.0f, 1.0f, 0.0f, 4.0f, 4.0f);
+	//Floor的具体尺寸和其对应的纹理图片原始大小之间没有关系，在上述顶点位置和纹理坐标对应关系上来看，纹理在X和Z轴方向上各重复绘制了4次
+	//又因为X轴尺寸为11，Z轴尺寸为1,0，所以渲染出来的效果看，地板的图已经不是方形的了，而是X轴：Z轴=11:10
+	//纹理坐标的原点在左上角，向右为X轴正方向，向下为Y轴正方向
 
 	// Wall: Observe we tile texture coordinates, and that we
 	// leave a gap in the middle for the mirror.

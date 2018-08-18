@@ -104,6 +104,8 @@ void RenderStates::InitAll(ID3D11Device* device)
 	noRenderTargetWritesDesc.RenderTarget[0].SrcBlendAlpha  = D3D11_BLEND_ONE;
 	noRenderTargetWritesDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
 	noRenderTargetWritesDesc.RenderTarget[0].BlendOpAlpha   = D3D11_BLEND_OP_ADD;
+	//zhy 笔记
+	//控制不写入后台缓冲区
 	noRenderTargetWritesDesc.RenderTarget[0].RenderTargetWriteMask = 0;
 
 	HR(device->CreateBlendState(&noRenderTargetWritesDesc, &NoRenderTargetWritesBS));
@@ -114,6 +116,9 @@ void RenderStates::InitAll(ID3D11Device* device)
 
 	D3D11_DEPTH_STENCIL_DESC mirrorDesc;
 	mirrorDesc.DepthEnable      = true;
+	//zhy 笔记
+	//将镜面的可视区域绘制到模板缓冲时，不能将深度写入深度缓冲区，会致使后面绘制的skull映像不满足深度测试而影响镜面效果
+	//阻止将深度值写入深度缓冲区
 	mirrorDesc.DepthWriteMask   = D3D11_DEPTH_WRITE_MASK_ZERO;
     mirrorDesc.DepthFunc        = D3D11_COMPARISON_LESS; 
     mirrorDesc.StencilEnable    = true;
