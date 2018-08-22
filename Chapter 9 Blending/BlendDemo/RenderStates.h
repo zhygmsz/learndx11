@@ -20,6 +20,7 @@ public:
 	 
 	static ID3D11BlendState* AlphaToCoverageBS;
 	static ID3D11BlendState* TransparentBS;
+	static ID3D11BlendState* DisableRedAndGreenBS;
 };
 
 #endif // RENDERSTATES_H
