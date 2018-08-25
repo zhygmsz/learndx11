@@ -109,6 +109,15 @@ TexturedHillsAndWavesApp::TexturedHillsAndWavesApp(HINSTANCE hInstance)
 	XMMATRIX grassTexScale = XMMatrixScaling(5.0f, 5.0f, 0.0f);
 	XMStoreFloat4x4(&mGrassTexTransform, grassTexScale);
 
+	//zhy 笔记
+	//想要实现一张图平铺在一个3D物体表面，有两个方法，例如平铺5次
+	//1：在生成3D物体的顶点数据时，将其纹理坐标的1改成平铺数量值5，这样该物体表面的纹理坐标区间[0,5]，寻址模式设置成重复
+	//2：在生成3D物体的顶点数据时，其纹理坐标还是按照正常的[0,1]区间设置，使用纹理变换矩阵，变换矩阵里包含缩放矩阵，
+	//在VS阶段，所有的顶点纹理坐标都会应用该纹理变换矩阵，以达到纹理坐标值扩大到[0,5]区间的效果，仍需要寻址模式设置成重复
+	//总结：实际中，顶点的纹理坐标一般都是被规范化到[0,1]，所以2方法操作性更强。方法1还要去修改顶点的纹理坐标，不现实。
+	//3D物体表面的尺寸和贴图纹理的尺寸至今没有关联，他们都是通过一个规范的纹理坐标[0,1]^2来相互作用的。
+	//草地贴图的尺寸和水贴图的尺寸是不一样的，但他们都被平铺在地面上5次
+
 	mDirLights[0].Ambient  = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
 	mDirLights[0].Diffuse  = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	mDirLights[0].Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
