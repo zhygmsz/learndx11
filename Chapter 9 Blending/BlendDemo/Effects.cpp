@@ -69,7 +69,13 @@ BasicEffect::BasicEffect(ID3D11Device* device, const std::wstring& filename)
 	FogStart          = mFX->GetVariableByName("gFogStart")->AsScalar();
 	FogRange          = mFX->GetVariableByName("gFogRange")->AsScalar();
 	DirLights         = mFX->GetVariableByName("gDirLights");
+
+	//zhy 笔记
+	//gMaterial代表3D世界里的物体表面属性，这个属性更确切的说是光照范畴的
+	//gMaterial.Diffuse.a表示alpha，用于blending
 	Mat               = mFX->GetVariableByName("gMaterial");
+	//zhy 笔记
+	//gDiffuseMap代表一个Texture2D纹理，是一个图片资源，用于纹理采样，获取一个颜色数据（包括alpha值）
 	DiffuseMap        = mFX->GetVariableByName("gDiffuseMap")->AsShaderResource();
 }
 

@@ -52,6 +52,8 @@ private:
 	void BuildWaveGeometryBuffers();
 	void BuildCrateGeometryBuffers();
 
+	void BuildCylinderGeometryBuffers();
+	ID3D11ShaderResourceView* GetNextFrame();
 private:
 	ID3D11Buffer* mLandVB;
 	ID3D11Buffer* mLandIB;
@@ -61,6 +63,12 @@ private:
 
 	ID3D11Buffer* mBoxVB;
 	ID3D11Buffer* mBoxIB;
+
+	ID3D11Buffer* mCylinderVB;
+	ID3D11Buffer* mCylinderIB;
+
+	ID3D11ShaderResourceView** mBoltAniMapSRV;
+	ID3D11ShaderResourceView* mBoltMapSRV;
 
 	ID3D11ShaderResourceView* mGrassMapSRV;
 	ID3D11ShaderResourceView* mWavesMapSRV;
@@ -73,16 +81,23 @@ private:
 	Material mWavesMat;
 	Material mBoxMat;
 
+	Material mCylinderMat;
+
 	XMFLOAT4X4 mGrassTexTransform;
 	XMFLOAT4X4 mWaterTexTransform;
 	XMFLOAT4X4 mLandWorld;
 	XMFLOAT4X4 mWavesWorld;
 	XMFLOAT4X4 mBoxWorld;
 
+	XMFLOAT4X4 mCylinderWorld;
+
 	XMFLOAT4X4 mView;
 	XMFLOAT4X4 mProj;
 
 	UINT mLandIndexCount;
+
+	UINT mCylinderIndexCount;
+
 	XMFLOAT2 mWaterTexOffset;
 
 	RenderOptions mRenderOptions;
@@ -94,6 +109,11 @@ private:
 	float mRadius;
 
 	POINT mLastMousePos;
+
+	const int BoltAniMaxFrame;
+	UINT mCurFrame;
+	float mfTimer;
+	const float SecPerFrame;
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
@@ -113,9 +133,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 }
 
 BlendApp::BlendApp(HINSTANCE hInstance)
-: D3DApp(hInstance), mLandVB(0), mLandIB(0), mWavesVB(0), mWavesIB(0), mBoxVB(0), mBoxIB(0), mGrassMapSRV(0), mWavesMapSRV(0), mBoxMapSRV(0),
+: D3DApp(hInstance), mLandVB(0), mLandIB(0), mWavesVB(0), mWavesIB(0), mBoxVB(0), mBoxIB(0), mCylinderVB(0), mCylinderIB(0), mGrassMapSRV(0), mWavesMapSRV(0), mBoxMapSRV(0),
   mWaterTexOffset(0.0f, 0.0f), mEyePosW(0.0f, 0.0f, 0.0f), mLandIndexCount(0), mRenderOptions(RenderOptions::TexturesAndFog),
-  mTheta(1.3f*MathHelper::Pi), mPhi(0.4f*MathHelper::Pi), mRadius(80.0f)
+  mTheta(1.3f*MathHelper::Pi), mPhi(0.4f*MathHelper::Pi), mRadius(80.0f), 
+  BoltAniMaxFrame(30), mCurFrame(-1), mfTimer(0.0f), SecPerFrame(1.0f / 10), 
+  mBoltAniMapSRV(0), mBoltMapSRV(0), mCylinderIndexCount(0)
 {
 	mMainWndCaption = L"Blend Demo";
 	mEnable4xMsaa = false;
@@ -136,6 +158,10 @@ BlendApp::BlendApp(HINSTANCE hInstance)
 	XMMATRIX grassTexScale = XMMatrixScaling(5.0f, 5.0f, 0.0f);
 	XMStoreFloat4x4(&mGrassTexTransform, grassTexScale);
 
+	XMMATRIX cylinderScale = XMMatrixScaling(15.0f, 15.0f, 15.0f);
+	XMMATRIX cylinderOffset = XMMatrixTranslation(8.0f, 15.0f, -15.0f);
+	XMStoreFloat4x4(&mCylinderWorld, cylinderScale * cylinderOffset);
+
 	mDirLights[0].Ambient  = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
 	mDirLights[0].Diffuse  = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	mDirLights[0].Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
@@ -155,14 +181,22 @@ BlendApp::BlendApp(HINSTANCE hInstance)
 	mLandMat.Ambient  = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	mLandMat.Diffuse  = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	mLandMat.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 16.0f);
-
+	
 	mWavesMat.Ambient  = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	//水波的mat中的diffuse的分量a，为0.5f，可以使用混合看到效果
 	mWavesMat.Diffuse  = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.5f);
 	mWavesMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 32.0f);
 
 	mBoxMat.Ambient  = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	mBoxMat.Diffuse  = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	mBoxMat.Specular = XMFLOAT4(0.4f, 0.4f, 0.4f, 16.0f);
+
+	mCylinderMat.Ambient  = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	//圆柱的mat中的diffuse的分量a，为1.0f，使用混合看不到效果
+	//zhy 笔记
+	//因为BlendState针对的是材质里的alpha分量。
+	mCylinderMat.Diffuse  = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	mCylinderMat.Specular = XMFLOAT4(1.0f, 1.0f, 1.0f, 16.0f);
 }
 
 BlendApp::~BlendApp()
@@ -174,9 +208,17 @@ BlendApp::~BlendApp()
 	ReleaseCOM(mWavesIB);
 	ReleaseCOM(mBoxVB);
 	ReleaseCOM(mBoxIB);
+	ReleaseCOM(mCylinderVB);
+	ReleaseCOM(mCylinderIB);
 	ReleaseCOM(mGrassMapSRV);
 	ReleaseCOM(mWavesMapSRV);
 	ReleaseCOM(mBoxMapSRV);
+
+	//这里不需要释放mBoltMapSRV，因为它并没有真正表示某个纹理资源
+	for (int idx = 0; idx < BoltAniMaxFrame; ++idx)
+	{
+		ReleaseCOM(mBoltAniMapSRV[idx]);
+	}
 
 	Effects::DestroyAll();
 	InputLayouts::DestroyAll();
@@ -204,11 +246,32 @@ bool BlendApp::Init()
 	HR(D3DX11CreateShaderResourceViewFromFile(md3dDevice, 
 		L"Textures/WireFence.dds", 0, 0, &mBoxMapSRV, 0 ));
 
+	mBoltAniMapSRV = new ID3D11ShaderResourceView*[BoltAniMaxFrame];
+	std::wstring fileName = L"";
+	for (int idx = 0; idx < BoltAniMaxFrame; ++idx)
+	{
+		fileName = Str2Wstr(format("../../Chapter 10 Stenciling/BoltAnim/Bolt%03d.bmp", idx + 1));
+		HR(D3DX11CreateShaderResourceViewFromFile(md3dDevice,
+			fileName.c_str(), 0, 0, &mBoltAniMapSRV[idx], 0));
+	}
+	mBoltMapSRV = GetNextFrame();
+
 	BuildLandGeometryBuffers();
 	BuildWaveGeometryBuffers();
 	BuildCrateGeometryBuffers();
+	BuildCylinderGeometryBuffers();
 
 	return true;
+}
+
+ID3D11ShaderResourceView* BlendApp::GetNextFrame()
+{
+	++mCurFrame;
+	if (mCurFrame >= BoltAniMaxFrame)
+	{
+		mCurFrame = 0;
+	}
+	return mBoltAniMapSRV[mCurFrame];
 }
 
 void BlendApp::OnResize()
@@ -300,6 +363,13 @@ void BlendApp::UpdateScene(float dt)
 
 	if( GetAsyncKeyState('3') & 0x8000 )
 		mRenderOptions = RenderOptions::TexturesAndFog; 
+
+	mfTimer += dt;
+	if (mfTimer >= SecPerFrame)
+	{
+		mfTimer = 0.0f;
+		mBoltMapSRV = GetNextFrame();
+	}
 }
 
 void BlendApp::DrawScene()
@@ -328,20 +398,24 @@ void BlendApp::DrawScene()
  
 	ID3DX11EffectTechnique* boxTech;
 	ID3DX11EffectTechnique* landAndWavesTech;
+	ID3DX11EffectTechnique* cylinderTech;
 
 	switch(mRenderOptions)
 	{
 	case RenderOptions::Lighting:
 		boxTech = Effects::BasicFX->Light3Tech;
 		landAndWavesTech = Effects::BasicFX->Light3Tech;
+		cylinderTech = Effects::BasicFX->Light3Tech;
 		break;
 	case RenderOptions::Textures:
 		boxTech = Effects::BasicFX->Light3TexAlphaClipTech;
 		landAndWavesTech = Effects::BasicFX->Light3TexTech;
+		cylinderTech = Effects::BasicFX->Light3TexAlphaClipTech;
 		break;
 	case RenderOptions::TexturesAndFog:
 		boxTech = Effects::BasicFX->Light3TexAlphaClipFogTech;
 		landAndWavesTech = Effects::BasicFX->Light3TexFogTech;
+		cylinderTech = Effects::BasicFX->Light3TexAlphaClipFogTech;
 		break;
 	}
 
@@ -371,7 +445,7 @@ void BlendApp::DrawScene()
 
 		md3dImmediateContext->RSSetState(RenderStates::NoCullRS);
 		boxTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
-		md3dImmediateContext->DrawIndexed(36, 0, 0);
+		//md3dImmediateContext->DrawIndexed(36, 0, 0);
 
 		// Restore default render state.
 		md3dImmediateContext->RSSetState(0);
@@ -403,7 +477,7 @@ void BlendApp::DrawScene()
 		Effects::BasicFX->SetDiffuseMap(mGrassMapSRV);
 
 		landAndWavesTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
-		md3dImmediateContext->DrawIndexed(mLandIndexCount, 0, 0);
+		//md3dImmediateContext->DrawIndexed(mLandIndexCount, 0, 0);
 
 		//
 		// Draw the waves.
@@ -431,11 +505,43 @@ void BlendApp::DrawScene()
 		md3dImmediateContext->OMSetBlendState(RenderStates::TransparentBS, blendFactor, 0xffffffff);
 		//md3dImmediateContext->OMSetBlendState(RenderStates::DisableRedAndGreenBS, blendFactor, 0xffffffff);
 		landAndWavesTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
-		md3dImmediateContext->DrawIndexed(3*mWaves.TriangleCount(), 0, 0);
+		//md3dImmediateContext->DrawIndexed(3*mWaves.TriangleCount(), 0, 0);
 
 		// Restore default blend state
 		md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
     }
+
+	//绘制电圈动画
+	cylinderTech->GetDesc(&techDesc);
+	for (UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		md3dImmediateContext->IASetVertexBuffers(0, 1, &mCylinderVB, &stride, &offset);
+		md3dImmediateContext->IASetIndexBuffer(mCylinderIB, DXGI_FORMAT_R32_UINT, 0);
+
+		// Set per object constants.
+		XMMATRIX world = XMLoadFloat4x4(&mCylinderWorld);
+		XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
+		XMMATRIX worldViewProj = world*view*proj;
+
+		Effects::BasicFX->SetWorld(world);
+		Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
+		Effects::BasicFX->SetWorldViewProj(worldViewProj);
+		Effects::BasicFX->SetTexTransform(XMMatrixIdentity());
+		Effects::BasicFX->SetMaterial(mCylinderMat);
+		Effects::BasicFX->SetDiffuseMap(mBoltMapSRV);
+
+		md3dImmediateContext->RSSetState(RenderStates::NoCullRS);
+		md3dImmediateContext->OMSetBlendState(RenderStates::AdditiveBS, blendFactor, 0xffffffff);
+		md3dImmediateContext->OMSetDepthStencilState(RenderStates::DisableDepthWriteDSS, 0);
+
+		cylinderTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
+		md3dImmediateContext->DrawIndexed(mCylinderIndexCount, 0, 0);
+
+		// Restore default render state.
+		md3dImmediateContext->RSSetState(0);
+		md3dImmediateContext->OMSetBlendState(0, blendFactor, 0xffffffff);
+		md3dImmediateContext->OMSetDepthStencilState(NULL, 0);
+	}
 
 	HR(mSwapChain->Present(0, 0));
 }
@@ -650,4 +756,44 @@ void BlendApp::BuildCrateGeometryBuffers()
     D3D11_SUBRESOURCE_DATA iinitData;
     iinitData.pSysMem = &box.Indices[0];
     HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mBoxIB));
+}
+
+
+void BlendApp::BuildCylinderGeometryBuffers()
+{
+	GeometryGenerator::MeshData cylinder;
+
+	GeometryGenerator geoGen;
+	geoGen.CreateCylinderNoCaps(1.0f, 1.0f, 2.0f, 20, 20, cylinder);
+
+	mCylinderIndexCount = cylinder.Indices.size();
+
+	std::size_t verCount = cylinder.Vertices.size();
+	std::vector<Vertex::Basic32> vertices(verCount);
+	for(UINT i = 0; i < verCount; ++i)
+	{
+		vertices[i].Pos    = cylinder.Vertices[i].Position;
+		vertices[i].Normal = cylinder.Vertices[i].Normal;
+		vertices[i].Tex    = cylinder.Vertices[i].TexC;
+	}
+
+	D3D11_BUFFER_DESC vbd;
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(Vertex::Basic32) * verCount;
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbd.CPUAccessFlags = 0;
+	vbd.MiscFlags = 0;
+	D3D11_SUBRESOURCE_DATA vinitData;
+	vinitData.pSysMem = &vertices[0];
+	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mCylinderVB));
+
+	D3D11_BUFFER_DESC ibd;
+	ibd.Usage = D3D11_USAGE_IMMUTABLE;
+	ibd.ByteWidth = sizeof(UINT) * cylinder.Indices.size();
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	ibd.CPUAccessFlags = 0;
+	ibd.MiscFlags = 0;
+	D3D11_SUBRESOURCE_DATA iinitData;
+	iinitData.pSysMem = &cylinder.Indices[0];
+	HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mCylinderIB));
 }

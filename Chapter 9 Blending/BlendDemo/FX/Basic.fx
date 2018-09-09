@@ -95,7 +95,13 @@ float4 PS(VertexOut pin, uniform int gLightCount, uniform bool gUseTexure, unifo
 			// Discard pixel if texture alpha < 0.1.  Note that we do this
 			// test as soon as possible so that we can potentially exit the shader 
 			// early, thereby skipping the rest of the shader code.
-			clip(texColor.a - 0.1f);
+			//clip(texColor.a - 0.1f);
+
+			//zhy 笔记
+			//clip裁剪函数，针对的是从纹理贴图采样来的颜色值中的alpha通道分量
+			//一张图本身如果没有alpha通道，则该函数则没有任何效果
+			//目前看，贴图纹理里的alpha通道只是用来做裁剪使用，作为一个是否渲染该纹理元素的判断准则
+			//Material里的Diffuse.a通道才是用于混合，半透明效果的。
 		}
 	}
 	 
