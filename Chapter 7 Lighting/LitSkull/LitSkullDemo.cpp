@@ -44,6 +44,11 @@ private:
 	ID3D11Buffer* mSkullVB;
 	ID3D11Buffer* mSkullIB;
 
+	ID3D11ShaderResourceView* mBoxMapSRV;
+	ID3D11ShaderResourceView* mGridMapSRV;
+	ID3D11ShaderResourceView* mSphereMapSRV;
+	ID3D11ShaderResourceView* mCylinderMapSRV;
+
 	DirectionalLight mDirLights[3];
 	Material mGridMat;
 	Material mBoxMat;
@@ -57,6 +62,11 @@ private:
 	XMFLOAT4X4 mBoxWorld;
 	XMFLOAT4X4 mGridWorld;
 	XMFLOAT4X4 mSkullWorld;
+
+	XMFLOAT4X4 mBoxTexTransform;
+	XMFLOAT4X4 mGridTexTransform;
+	XMFLOAT4X4 mSphereTexTransform;
+	XMFLOAT4X4 mCylinderTexTransform;
 
 	XMFLOAT4X4 mView;
 	XMFLOAT4X4 mProj;
@@ -108,7 +118,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 LitSkullApp::LitSkullApp(HINSTANCE hInstance)
 : D3DApp(hInstance), mShapesVB(0), mShapesIB(0), mSkullVB(0), mSkullIB(0), mSkullIndexCount(0), mLightCount(1),
-  mEyePosW(0.0f, 0.0f, 0.0f), mTheta(1.5f*MathHelper::Pi), mPhi(0.1f*MathHelper::Pi), mRadius(15.0f)
+  mEyePosW(0.0f, 0.0f, 0.0f), mTheta(1.5f*MathHelper::Pi), mPhi(0.1f*MathHelper::Pi), mRadius(15.0f),
+  mBoxMapSRV(0), mGridMapSRV(0), mSphereMapSRV(0), mCylinderMapSRV(0)
 {
 	mMainWndCaption = L"LitSkull Demo";
 	
@@ -119,6 +130,13 @@ LitSkullApp::LitSkullApp(HINSTANCE hInstance)
 	XMStoreFloat4x4(&mGridWorld, I);
 	XMStoreFloat4x4(&mView, I);
 	XMStoreFloat4x4(&mProj, I);
+
+	XMStoreFloat4x4(&mBoxTexTransform, I);
+	XMStoreFloat4x4(&mSphereTexTransform, I);
+	XMStoreFloat4x4(&mCylinderTexTransform, I);
+
+	XMMATRIX gridTexScale = XMMatrixScaling(5.0f, 5.0f, 0.0f);
+	XMStoreFloat4x4(&mGridTexTransform, gridTexScale);
 
 	XMMATRIX boxScale = XMMatrixScaling(3.0f, 1.0f, 3.0f);
 	XMMATRIX boxOffset = XMMatrixTranslation(0.0f, 0.5f, 0.0f);
@@ -193,6 +211,15 @@ bool LitSkullApp::Init()
 	Effects::InitAll(md3dDevice);
 	InputLayouts::InitAll(md3dDevice);
 
+	HR(D3DX11CreateShaderResourceViewFromFile(md3dDevice,
+		L"Textures/WoodCrate01.dds", 0, 0, &mBoxMapSRV, 0));
+	HR(D3DX11CreateShaderResourceViewFromFile(md3dDevice,
+		L"Textures/grass.dds", 0, 0, &mGridMapSRV, 0));
+	HR(D3DX11CreateShaderResourceViewFromFile(md3dDevice,
+		L"Textures/water1.dds", 0, 0, &mSphereMapSRV, 0));
+	HR(D3DX11CreateShaderResourceViewFromFile(md3dDevice,
+		L"Textures/WoodCrate02.dds", 0, 0, &mCylinderMapSRV, 0));
+
 	BuildShapeGeometryBuffers();
 	BuildSkullGeometryBuffers();
 
@@ -259,6 +286,7 @@ void LitSkullApp::DrawScene()
 	Effects::BasicFX->SetDirLights(mDirLights);
 	Effects::BasicFX->SetEyePosW(mEyePosW);
  
+	/*
 	// Figure out which technique to use.
 	ID3DX11EffectTechnique* activeTech = Effects::BasicFX->Light1Tech;
 	switch(mLightCount)
@@ -273,7 +301,9 @@ void LitSkullApp::DrawScene()
 		activeTech = Effects::BasicFX->Light3Tech;
 		break;
 	}
+	*/
 
+	ID3DX11EffectTechnique* activeTech = Effects::BasicFX->Light3TexTech;
     D3DX11_TECHNIQUE_DESC techDesc;
     activeTech->GetDesc( &techDesc );
     for(UINT p = 0; p < techDesc.Passes; ++p)
@@ -289,7 +319,9 @@ void LitSkullApp::DrawScene()
 		Effects::BasicFX->SetWorld(world);
 		Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
 		Effects::BasicFX->SetWorldViewProj(worldViewProj);
+		Effects::BasicFX->SetTexTransform(XMLoadFloat4x4(&mGridTexTransform));
 		Effects::BasicFX->SetMaterial(mGridMat);
+		Effects::BasicFX->SetDiffuseMap(mGridMapSRV);
 
 		activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
 		md3dImmediateContext->DrawIndexed(mGridIndexCount, mGridIndexOffset, mGridVertexOffset);
@@ -302,7 +334,9 @@ void LitSkullApp::DrawScene()
 		Effects::BasicFX->SetWorld(world);
 		Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
 		Effects::BasicFX->SetWorldViewProj(worldViewProj);
+		Effects::BasicFX->SetTexTransform(XMLoadFloat4x4(&mBoxTexTransform));
 		Effects::BasicFX->SetMaterial(mBoxMat);
+		Effects::BasicFX->SetDiffuseMap(mBoxMapSRV);
 
 		activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
 		md3dImmediateContext->DrawIndexed(mBoxIndexCount, mBoxIndexOffset, mBoxVertexOffset);
@@ -317,7 +351,9 @@ void LitSkullApp::DrawScene()
 			Effects::BasicFX->SetWorld(world);
 			Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
 			Effects::BasicFX->SetWorldViewProj(worldViewProj);
+			Effects::BasicFX->SetTexTransform(XMLoadFloat4x4(&mCylinderTexTransform));
 			Effects::BasicFX->SetMaterial(mCylinderMat);
+			Effects::BasicFX->SetDiffuseMap(mCylinderMapSRV);
 
 			activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
 			md3dImmediateContext->DrawIndexed(mCylinderIndexCount, mCylinderIndexOffset, mCylinderVertexOffset);
@@ -333,20 +369,26 @@ void LitSkullApp::DrawScene()
 			Effects::BasicFX->SetWorld(world);
 			Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
 			Effects::BasicFX->SetWorldViewProj(worldViewProj);
+			Effects::BasicFX->SetTexTransform(XMLoadFloat4x4(&mSphereTexTransform));
 			Effects::BasicFX->SetMaterial(mSphereMat);
+			Effects::BasicFX->SetDiffuseMap(mSphereMapSRV);
 
 			activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
 			md3dImmediateContext->DrawIndexed(mSphereIndexCount, mSphereIndexOffset, mSphereVertexOffset);
 		}
+    }
 
-		// Draw the skull.
-
+	// Draw the skull.
+	activeTech = Effects::BasicFX->Light3Tech;
+	activeTech->GetDesc(&techDesc);
+	for (UINT p = 0; p < techDesc.Passes; ++p)
+	{
 		md3dImmediateContext->IASetVertexBuffers(0, 1, &mSkullVB, &stride, &offset);
 		md3dImmediateContext->IASetIndexBuffer(mSkullIB, DXGI_FORMAT_R32_UINT, 0);
 
-		world = XMLoadFloat4x4(&mSkullWorld);
-		worldInvTranspose = MathHelper::InverseTranspose(world);
-		worldViewProj = world*view*proj;
+		XMMATRIX world = XMLoadFloat4x4(&mSkullWorld);
+		XMMATRIX worldInvTranspose = MathHelper::InverseTranspose(world);
+		XMMATRIX worldViewProj = world*view*proj;
 
 		Effects::BasicFX->SetWorld(world);
 		Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
@@ -355,9 +397,15 @@ void LitSkullApp::DrawScene()
 
 		activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
 		md3dImmediateContext->DrawIndexed(mSkullIndexCount, 0, 0);
-    }
+	}
 
 	HR(mSwapChain->Present(0, 0));
+
+	//zhy 笔记
+	//代码写完后，查看骷髅是否和dev分支上渲染的一样
+	//看起来并不很一样，主要是亮度和光泽上的差异。反复对比了两遍代码后
+	//起初怀疑是灯光的设置不一样导致的，最后才意识到这两个项目都是起于一个分支的，并未修改灯光部分代码
+	//把起于模型注释掉，只渲染骷髅，发现一模一样，之前看到的差异是旁边的模型干扰了视觉判断
 }
 
 void LitSkullApp::OnMouseDown(WPARAM btnState, int x, int y)
@@ -460,24 +508,28 @@ void LitSkullApp::BuildShapeGeometryBuffers()
 	{
 		vertices[k].Pos    = box.Vertices[i].Position;
 		vertices[k].Normal = box.Vertices[i].Normal;
+		vertices[k].Tex	   = box.Vertices[i].TexC;
 	}
 
 	for(size_t i = 0; i < grid.Vertices.size(); ++i, ++k)
 	{
 		vertices[k].Pos    = grid.Vertices[i].Position;
 		vertices[k].Normal = grid.Vertices[i].Normal;
+		vertices[k].Tex	   = grid.Vertices[i].TexC;
 	}
 
 	for(size_t i = 0; i < sphere.Vertices.size(); ++i, ++k)
 	{
 		vertices[k].Pos    = sphere.Vertices[i].Position;
 		vertices[k].Normal = sphere.Vertices[i].Normal;
+		vertices[k].Tex	   = sphere.Vertices[i].TexC;
 	}
 
 	for(size_t i = 0; i < cylinder.Vertices.size(); ++i, ++k)
 	{
 		vertices[k].Pos    = cylinder.Vertices[i].Position;
 		vertices[k].Normal = cylinder.Vertices[i].Normal;
+		vertices[k].Tex	   = cylinder.Vertices[i].TexC;
 	}
 
     D3D11_BUFFER_DESC vbd;
