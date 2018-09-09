@@ -34,12 +34,15 @@ public:
 
 private:
 	void BuildGeometryBuffers();
+	ID3D11ShaderResourceView* GetNextFrame();
 
 private:
 	ID3D11Buffer* mBoxVB;
 	ID3D11Buffer* mBoxIB;
 
 	ID3D11ShaderResourceView* mDiffuseMapSRV;
+
+	ID3D11ShaderResourceView** mFireAniMapSRV;
 
 	DirectionalLight mDirLights[3];
 	Material mBoxMat;
@@ -61,6 +64,11 @@ private:
 	float mRadius;
 
 	POINT mLastMousePos;
+
+	const int FireAniMaxFrame;
+	int mCurFrame;
+	float mfTimer;
+	const float FramePerSec;
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
@@ -82,7 +90,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 CrateApp::CrateApp(HINSTANCE hInstance)
 : D3DApp(hInstance), mBoxVB(0), mBoxIB(0), mDiffuseMapSRV(0), mEyePosW(0.0f, 0.0f, 0.0f), 
-  mTheta(1.3f*MathHelper::Pi), mPhi(0.4f*MathHelper::Pi), mRadius(2.5f)
+  mTheta(1.3f*MathHelper::Pi), mPhi(0.4f*MathHelper::Pi), mRadius(2.5f), mCurFrame(-1), mfTimer(0.0f), FireAniMaxFrame(120), FramePerSec(30.0f)
 {
 	mMainWndCaption = L"Crate Demo";
 	
@@ -135,6 +143,11 @@ CrateApp::~CrateApp()
 	ReleaseCOM(mBoxIB);
 	ReleaseCOM(mDiffuseMapSRV);
 
+	for (int idx = 0; idx < FireAniMaxFrame; ++idx)
+	{
+		ReleaseCOM(mFireAniMapSRV[idx]);
+	}
+
 	Effects::DestroyAll();
 	InputLayouts::DestroyAll();
 }
@@ -148,12 +161,30 @@ bool CrateApp::Init()
 	Effects::InitAll(md3dDevice);
 	InputLayouts::InitAll(md3dDevice);
 
-	HR(D3DX11CreateShaderResourceViewFromFile(md3dDevice, 
-		L"Textures/WoodCrate01.dds", 0, 0, &mDiffuseMapSRV, 0 ));
+	mFireAniMapSRV = new ID3D11ShaderResourceView*[FireAniMaxFrame];
+	std::wstring fileName = L"";
+	for (int idx = 0; idx < FireAniMaxFrame; ++idx)
+	{
+		fileName = Str2Wstr(format("../FireAnim/Fire%03d.bmp", idx + 1));
+		HR(D3DX11CreateShaderResourceViewFromFile(md3dDevice, 
+			fileName.c_str(), 0, 0, &mFireAniMapSRV[idx], 0 ));
+	}
+
+	mDiffuseMapSRV = GetNextFrame();
 
 	BuildGeometryBuffers();
 
 	return true;
+}
+
+ID3D11ShaderResourceView* CrateApp::GetNextFrame()
+{
+	++mCurFrame;
+	if (mCurFrame >= FireAniMaxFrame)
+	{
+		mCurFrame = 0;
+	}
+	return mFireAniMapSRV[mCurFrame];
 }
 
 void CrateApp::OnResize()
@@ -180,6 +211,13 @@ void CrateApp::UpdateScene(float dt)
 
 	XMMATRIX V = XMMatrixLookAtLH(pos, target, up);
 	XMStoreFloat4x4(&mView, V);
+
+	mfTimer += dt;
+	if (mfTimer >= (1 / FramePerSec))
+	{
+		mfTimer = 0.0f;
+		mDiffuseMapSRV = GetNextFrame();
+	}
 }
 
 void CrateApp::DrawScene()
