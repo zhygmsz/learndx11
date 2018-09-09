@@ -17,6 +17,13 @@
 #include "Effects.h"
 #include "Vertex.h"
 
+enum DrawType
+{
+	Draw_Non			= 0,	//啥也不画
+	Draw_FireAni		= 1,	//火焰动画
+	Draw_FireBall		= 2		//火球旋转
+};
+
 class CrateApp : public D3DApp
 {
 public:
@@ -41,13 +48,17 @@ private:
 	ID3D11Buffer* mBoxIB;
 
 	ID3D11ShaderResourceView* mDiffuseMapSRV;
-
 	ID3D11ShaderResourceView** mFireAniMapSRV;
+
+	ID3D11ShaderResourceView* mFlareMapSRV;
+	ID3D11ShaderResourceView* mFlareAlphaMapSRV;
 
 	DirectionalLight mDirLights[3];
 	Material mBoxMat;
 
-	XMFLOAT4X4 mTexTransform;
+	//FireBall纹理变换矩阵
+	XMFLOAT4X4 mTexTransFireBall;
+	XMFLOAT4X4 mTexTransFireAni;
 	XMFLOAT4X4 mBoxWorld;
 
 	XMFLOAT4X4 mView;
@@ -69,6 +80,10 @@ private:
 	int mCurFrame;
 	float mfTimer;
 	const float FramePerSec;
+
+	DrawType mDrawType;
+
+	static float sAngle;
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
@@ -87,10 +102,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	return theApp.Run();
 }
  
+float CrateApp::sAngle = 0.0f;
 
 CrateApp::CrateApp(HINSTANCE hInstance)
 : D3DApp(hInstance), mBoxVB(0), mBoxIB(0), mDiffuseMapSRV(0), mEyePosW(0.0f, 0.0f, 0.0f), 
-  mTheta(1.3f*MathHelper::Pi), mPhi(0.4f*MathHelper::Pi), mRadius(2.5f), mCurFrame(-1), mfTimer(0.0f), FireAniMaxFrame(120), FramePerSec(30.0f)
+  mTheta(1.3f*MathHelper::Pi), mPhi(0.4f*MathHelper::Pi), mRadius(2.5f), mCurFrame(-1), mfTimer(0.0f), FireAniMaxFrame(120), FramePerSec(30.0f),
+  mDrawType(Draw_Non), mFlareMapSRV(0), mFlareAlphaMapSRV(0)
 {
 	mMainWndCaption = L"Crate Demo";
 	
@@ -99,13 +116,14 @@ CrateApp::CrateApp(HINSTANCE hInstance)
 
 	XMMATRIX I = XMMatrixIdentity();
 	XMStoreFloat4x4(&mBoxWorld, I);
-	//XMStoreFloat4x4(&mTexTransform, I);
+	XMStoreFloat4x4(&mTexTransFireBall, I);
+	XMStoreFloat4x4(&mTexTransFireAni, I);
 	XMStoreFloat4x4(&mView, I);
 	XMStoreFloat4x4(&mProj, I);
 
 	//设置纹理坐标缩放矩阵，配合重复模式
 	XMMATRIX texScale = XMMatrixScaling(1.0f, 1.0f, 0.0f);
-	XMStoreFloat4x4(&mTexTransform, texScale);
+	XMStoreFloat4x4(&mTexTransFireBall, texScale);
 
 	//zhy 笔记
 	//把纹理作为材质时，将环境光和漫反射光调制到纹理颜色上。
@@ -135,18 +153,24 @@ CrateApp::CrateApp(HINSTANCE hInstance)
 	//立方体盒子本身的位置时固定的，灯光是平行光，那么立方体能受到的光照区域也是固定的。
 	//在演示程序里，看似整个场景在一个球面上来回旋转，其实是在改变摄像机的位置，而摄像机的观察方向不改变。
 	//摄像机的方向不同，则看到的画面不一样，看似是立方体在旋转，其实不然。
+
+	//构造方法里只初始化数据.
 }
 
 CrateApp::~CrateApp()
 {
 	ReleaseCOM(mBoxVB);
 	ReleaseCOM(mBoxIB);
-	ReleaseCOM(mDiffuseMapSRV);
+	//真正的纹理资源在mFireAniMapSRV数组里，所以注释掉该句
+	//ReleaseCOM(mDiffuseMapSRV);
 
 	for (int idx = 0; idx < FireAniMaxFrame; ++idx)
 	{
 		ReleaseCOM(mFireAniMapSRV[idx]);
 	}
+
+	ReleaseCOM(mFlareMapSRV);
+	ReleaseCOM(mFlareAlphaMapSRV);
 
 	Effects::DestroyAll();
 	InputLayouts::DestroyAll();
@@ -161,6 +185,8 @@ bool CrateApp::Init()
 	Effects::InitAll(md3dDevice);
 	InputLayouts::InitAll(md3dDevice);
 
+	//Init方法里做初始化资源的工作.
+
 	mFireAniMapSRV = new ID3D11ShaderResourceView*[FireAniMaxFrame];
 	std::wstring fileName = L"";
 	for (int idx = 0; idx < FireAniMaxFrame; ++idx)
@@ -169,6 +195,11 @@ bool CrateApp::Init()
 		HR(D3DX11CreateShaderResourceViewFromFile(md3dDevice, 
 			fileName.c_str(), 0, 0, &mFireAniMapSRV[idx], 0 ));
 	}
+
+	HR(D3DX11CreateShaderResourceViewFromFile(md3dDevice,
+		L"../flare.dds", 0, 0, &mFlareMapSRV, 0));
+	HR(D3DX11CreateShaderResourceViewFromFile(md3dDevice,
+		L"../flarealpha.dds", 0, 0, &mFlareAlphaMapSRV, 0));
 
 	mDiffuseMapSRV = GetNextFrame();
 
@@ -218,6 +249,48 @@ void CrateApp::UpdateScene(float dt)
 		mfTimer = 0.0f;
 		mDiffuseMapSRV = GetNextFrame();
 	}
+
+	if (GetAsyncKeyState('0') & 0x8000)
+	{
+		mDrawType = Draw_Non;
+	}
+	if (GetAsyncKeyState('1') & 0x8000)
+	{
+		mDrawType = Draw_FireAni;
+	}
+	if (GetAsyncKeyState('2') & 0x8000)
+	{
+		mDrawType = Draw_FireBall;
+	}
+
+	//FireBall的纹理旋转一直持续
+	//都是结构体，方法返回，结构体占用内存被栈回收，最终结果保存在成员变量mTexTransFireBall里
+	//方法每帧执行，但内存并不受影响
+	sAngle += dt * 1;
+	XMMATRIX flareTrans = XMMatrixTranslation(0.5f, 0.5f, 0.0f);
+	XMMATRIX flareTransInv = XMMatrixTranslation(-0.5f, -0.5f, 0.0f);
+	XMMATRIX flareRotation = XMMatrixRotationZ(sAngle);
+	XMStoreFloat4x4(&mTexTransFireBall, flareTransInv * flareRotation * flareTrans);
+
+	//zhy 笔记
+	//在这个旋转火球的例子中，最初一直很迷惑，虽然知道是平移+旋转+平移的套路，但不得其法。
+	//在这其中，忽略了两个前提，这两个前提决定了渲染到屏幕上具体内容的细节
+	//第一个是纹理的寻址模式，最初设置的是WRAP，没有意识到这个问题的时候，发现把纹理坐标做了平移后，正方形的其他区域还有火球的其他轮廓
+	//第二个是顶点坐标和纹理坐标的对应关系，毕竟立方体有6个面，而我却以为每个面的左上角都是对应纹理坐标的原点。这才使得，无论怎么捋都捋不顺逻辑。
+	//在确定了寻址模式和顶点坐标与纹理坐标对应关系后，把立方体的创建细节里只剩余一个面，确定了该面的左上角对应纹理坐标原点。
+	//平移矩阵和旋转矩阵都是在操作纹理坐标，比如flareTransInv平移相当于把纹理坐标都统一减去了0.5
+	//正方形左上角现在的纹理坐标为-0.5，而原来的中心点纹理坐标变成了纹理坐标原点。
+	//操作纹理坐标和操作纹理坐标系是一个逆关系，flareTransInv平移矩阵相当于是把原来正方形左上角的纹理坐标系原点挪到了正方形的中心。
+	//而flareRotation旋转矩阵始终是沿着纹理坐标系的Z轴（也就是纹理坐标系原点）旋转。
+	//所以之前的思路（想着怎么把纹理的中心点挪到正方形的左上角）是错误的。正确的思路应该是把旋转轴从正方形的左上角挪到中心点。
+	//现在旋转中心轴位于正方形的中心，旋转后，再把纹理平移回去即可。
+	//其实这些操作纹理坐标的变换矩阵，都可以在VS里实现。
+
+	//以上是第一次弄明白该纹理旋转时总结的的笔记，现在读起来已经不那么顺畅，而且前后逻辑也难捋顺，下面是最新理解笔记
+
+	//纹理贴在立方体的一个面上，可以把纹理单独理解成一个空间，纹理空间。其原点在纹理贴图的左上角，水平向右为X轴，垂直向下为Y轴，还有一个Z轴，垂直于XY平面且朝向屏幕外/内
+	//而此时该纹理的坐标也正是在纹理空间的原点上，绕着Z轴旋转的话，也是以左上角的点为旋转点，要通过变换，最后实现纹理绕着其中心点，也就是纹理空间的(0.5,0.5,Z)轴旋转
+	//为了达到效果，需要将纹理的中心点挪到纹理空间的原点，渲染了以后，再反向平移回去，即可实现绕着纹理的中心点旋转。
 }
 
 void CrateApp::DrawScene()
@@ -241,7 +314,19 @@ void CrateApp::DrawScene()
 	Effects::BasicFX->SetDirLights(mDirLights);
 	Effects::BasicFX->SetEyePosW(mEyePosW);
  
-	ID3DX11EffectTechnique* activeTech = Effects::BasicFX->Light2TexTech;
+	ID3DX11EffectTechnique* activeTech = NULL;
+	if (mDrawType == Draw_FireAni)
+	{
+		activeTech = Effects::BasicFX->Light2TexTechFireAni;
+	}
+	else if (mDrawType == Draw_FireBall)
+	{
+		activeTech = Effects::BasicFX->Light2TexTechFireBall;
+	}
+	else
+	{
+		activeTech = Effects::BasicFX->Light2Tech;
+	}
 
     D3DX11_TECHNIQUE_DESC techDesc;
 	activeTech->GetDesc( &techDesc );
@@ -255,9 +340,23 @@ void CrateApp::DrawScene()
 		Effects::BasicFX->SetWorld(world);
 		Effects::BasicFX->SetWorldInvTranspose(worldInvTranspose);
 		Effects::BasicFX->SetWorldViewProj(worldViewProj);
-		Effects::BasicFX->SetTexTransform(XMLoadFloat4x4(&mTexTransform));
 		Effects::BasicFX->SetMaterial(mBoxMat);
-		Effects::BasicFX->SetDiffuseMap(mDiffuseMapSRV);
+
+		if (mDrawType == Draw_FireAni)
+		{
+			Effects::BasicFX->SetTexTransform(XMLoadFloat4x4(&mTexTransFireAni));
+			Effects::BasicFX->SetDiffuseMap(mDiffuseMapSRV);
+		}
+		else if (mDrawType == Draw_FireBall)
+		{
+			Effects::BasicFX->SetTexTransform(XMLoadFloat4x4(&mTexTransFireBall));
+			Effects::BasicFX->SetFlareMap(mFlareMapSRV);
+			Effects::BasicFX->SetFlareAlphaMap(mFlareAlphaMapSRV);
+		}
+		else
+		{
+			//不使用纹理采样
+		}
 
 		activeTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
 		md3dImmediateContext->DrawIndexed(mBoxIndexCount, mBoxIndexOffset, mBoxVertexOffset);

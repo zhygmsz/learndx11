@@ -36,10 +36,13 @@ BasicEffect::BasicEffect(ID3D11Device* device, const std::wstring& filename)
 	Light2Tech    = mFX->GetTechniqueByName("Light2");
 	Light3Tech    = mFX->GetTechniqueByName("Light3");
 
-	Light0TexTech = mFX->GetTechniqueByName("Light0Tex");
-	Light1TexTech = mFX->GetTechniqueByName("Light1Tex");
-	Light2TexTech = mFX->GetTechniqueByName("Light2Tex");
-	Light3TexTech = mFX->GetTechniqueByName("Light3Tex");
+	Light1TexTechFireAni = mFX->GetTechniqueByName("Light1TexFireAni");
+	Light2TexTechFireAni = mFX->GetTechniqueByName("Light2TexFireAni");
+	Light3TexTechFireAni = mFX->GetTechniqueByName("Light3TexFireAni");
+
+	Light1TexTechFireBall = mFX->GetTechniqueByName("Light1TexFireBall");
+	Light2TexTechFireBall = mFX->GetTechniqueByName("Light2TexFireBall");
+	Light3TexTechFireBall = mFX->GetTechniqueByName("Light3TexFireBall");
 
 	WorldViewProj     = mFX->GetVariableByName("gWorldViewProj")->AsMatrix();
 	World             = mFX->GetVariableByName("gWorld")->AsMatrix();
@@ -49,6 +52,9 @@ BasicEffect::BasicEffect(ID3D11Device* device, const std::wstring& filename)
 	DirLights         = mFX->GetVariableByName("gDirLights");
 	Mat               = mFX->GetVariableByName("gMaterial");
 	DiffuseMap        = mFX->GetVariableByName("gDiffuseMap")->AsShaderResource();
+
+	FlareMap		  = mFX->GetVariableByName("gFlareMap")->AsShaderResource();
+	FlareAlphaMap	  = mFX->GetVariableByName("gFlareAlphaMap")->AsShaderResource();
 }
 
 BasicEffect::~BasicEffect()

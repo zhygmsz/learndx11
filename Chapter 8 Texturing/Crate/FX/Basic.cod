@@ -22,15 +22,17 @@ cbuffer cbPerObject
 }
 
 //
-// 2 local object(s)
+// 4 local object(s)
 //
 Texture2D gDiffuseMap;
+Texture2D gFlareAlphaMap;
+Texture2D gFlareMap;
 SamplerState samAnisotropic
 {
     Filter   = uint(ANISOTROPIC /* 85 */);
     MaxAnisotropy = uint(4);
-    AddressU = uint(WRAP /* 1 */);
-    AddressV = uint(WRAP /* 1 */);
+    AddressU = uint(BORDER /* 4 */);
+    AddressV = uint(BORDER /* 4 */);
 };
 
 //
@@ -39,7 +41,7 @@ SamplerState samAnisotropic
 fxgroup
 {
     //
-    // 7 technique(s)
+    // 9 technique(s)
     //
     technique11 Light1
     {
@@ -111,7 +113,7 @@ fxgroup
                 dcl_output o3.xy
                 dcl_temps 5
                 
-                #line 68 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 77 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r0.xyz, v0.xyzx
                 mov r0.w, l(1.000000)
                 dp4 r1.x, r0.xyzw, cb0[0].xyzw  // vout<4:NaN:Inf>
@@ -121,13 +123,13 @@ fxgroup
                 dp3 r2.y, v1.xyzx, cb0[5].xyzx  // vout<8:NaN:Inf>
                 dp3 r2.z, v1.xyzx, cb0[6].xyzx  // vout<9:NaN:Inf>
                 
-                #line 72
+                #line 81
                 dp4 r3.x, r0.xyzw, cb0[8].xyzw  // vout<0:NaN:Inf>
                 dp4 r3.y, r0.xyzw, cb0[9].xyzw  // vout<1:NaN:Inf>
                 dp4 r3.z, r0.xyzw, cb0[10].xyzw  // vout<2:NaN:Inf>
                 dp4 r3.w, r0.xyzw, cb0[11].xyzw  // vout<3:NaN:Inf>
                 
-                #line 75
+                #line 84
                 mov r0.xy, v2.xyxx
                 mov r0.zw, l(0,0,0,1.000000)
                 dp4 r4.x, r0.xyzw, cb0[12].xyzw  // vout<10:NaN:Inf>
@@ -223,23 +225,23 @@ fxgroup
                 dcl_output o0.xyzw
                 dcl_temps 9
                 
-                #line 83 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 92 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 dp3 r0.x, v2.xyzx, v2.xyzx
                 rsq r0.x, r0.x
                 mul r0.xyz, r0.xxxx, v2.xyzx  // pin<7:NaN:Inf,8:NaN:Inf,9:NaN:Inf>
                 
-                #line 86
+                #line 95
                 mov r1.xyz, -v1.xyzx
                 add r1.xyz, r1.xyzx, cb0[12].xyzx  // toEye<0:Inf,1:Inf,2:Inf>
                 
-                #line 89
+                #line 98
                 dp3 r0.w, r1.xyzx, r1.xyzx
                 sqrt r0.w, r0.w  // distToEye<0:NaN:Inf>
                 
-                #line 92
+                #line 101
                 div r1.xyz, r1.xyzx, r0.wwww  // toEye<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 119
+                #line 143
                 nop 
                 mov r2.xyz, cb1[16].xyzx  // mat<0,1,2>
                 mov r3.xyz, cb1[17].xyzx  // mat<4,5,6>
@@ -282,22 +284,22 @@ fxgroup
                 movc r0.xyz, r1.wwww, r0.yzwy, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 movc r1.xyz, r1.wwww, r1.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 119 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 143 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r2.xyz, r2.xyzx  // A<0:Inf,1:Inf,2:Inf>
                 mov r0.xyz, r0.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov r1.xyz, r1.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 122
+                #line 146
                 add r2.xyz, r2.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // ambient<0:Inf,1:Inf,2:Inf>
                 add r0.xyz, r0.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r1.xyz, r1.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 128
+                #line 152
                 add r0.xyz, r0.xyzx, r2.xyzx
                 mul r0.xyz, r0.xyzx, l(1.000000, 1.000000, 1.000000, 0.000000)
                 add r0.xyz, r1.xyzx, r0.xyzx  // litColor<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 132
+                #line 156
                 mul r0.w, cb1[17].w, l(1.000000)  // litColor<3>
                 mov o0.xyz, r0.xyzx  // PS<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov o0.w, r0.w  // PS<3>
@@ -379,7 +381,7 @@ fxgroup
                 dcl_output o3.xy
                 dcl_temps 5
                 
-                #line 68 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 77 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r0.xyz, v0.xyzx
                 mov r0.w, l(1.000000)
                 dp4 r1.x, r0.xyzw, cb0[0].xyzw  // vout<4:NaN:Inf>
@@ -389,13 +391,13 @@ fxgroup
                 dp3 r2.y, v1.xyzx, cb0[5].xyzx  // vout<8:NaN:Inf>
                 dp3 r2.z, v1.xyzx, cb0[6].xyzx  // vout<9:NaN:Inf>
                 
-                #line 72
+                #line 81
                 dp4 r3.x, r0.xyzw, cb0[8].xyzw  // vout<0:NaN:Inf>
                 dp4 r3.y, r0.xyzw, cb0[9].xyzw  // vout<1:NaN:Inf>
                 dp4 r3.z, r0.xyzw, cb0[10].xyzw  // vout<2:NaN:Inf>
                 dp4 r3.w, r0.xyzw, cb0[11].xyzw  // vout<3:NaN:Inf>
                 
-                #line 75
+                #line 84
                 mov r0.xy, v2.xyxx
                 mov r0.zw, l(0,0,0,1.000000)
                 dp4 r4.x, r0.xyzw, cb0[12].xyzw  // vout<10:NaN:Inf>
@@ -491,23 +493,23 @@ fxgroup
                 dcl_output o0.xyzw
                 dcl_temps 12
                 
-                #line 83 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 92 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 dp3 r0.x, v2.xyzx, v2.xyzx
                 rsq r0.x, r0.x
                 mul r0.xyz, r0.xxxx, v2.xyzx  // pin<7:NaN:Inf,8:NaN:Inf,9:NaN:Inf>
                 
-                #line 86
+                #line 95
                 mov r1.xyz, -v1.xyzx
                 add r1.xyz, r1.xyzx, cb0[12].xyzx  // toEye<0:Inf,1:Inf,2:Inf>
                 
-                #line 89
+                #line 98
                 dp3 r0.w, r1.xyzx, r1.xyzx
                 sqrt r0.w, r0.w  // distToEye<0:NaN:Inf>
                 
-                #line 92
+                #line 101
                 div r1.xyz, r1.xyzx, r0.wwww  // toEye<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 119
+                #line 143
                 nop 
                 mov r2.xyz, cb1[16].xyzx  // mat<0,1,2>
                 mov r3.xyz, cb1[17].xyzx  // mat<4,5,6>
@@ -550,17 +552,17 @@ fxgroup
                 movc r6.xyz, r1.wwww, r6.xyzx, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 movc r7.xyz, r1.wwww, r7.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 119 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 143 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r5.xyz, r5.xyzx  // A<0:Inf,1:Inf,2:Inf>
                 mov r6.xyz, r6.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov r7.xyz, r7.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 122
+                #line 146
                 add r5.xyz, r5.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // ambient<0:Inf,1:Inf,2:Inf>
                 add r6.xyz, r6.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r7.xyz, r7.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 119
+                #line 143
                 nop 
                 mov r8.xyz, cb0[4].xyzx  // L<0,1,2>
                 mov r9.xyz, cb0[5].xyzx  // L<4,5,6>
@@ -598,22 +600,22 @@ fxgroup
                 movc r0.xyz, r1.wwww, r0.yzwy, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 movc r1.xyz, r1.wwww, r1.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 119 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 143 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r2.xyz, r2.xyzx  // A<0:Inf,1:Inf,2:Inf>
                 mov r0.xyz, r0.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov r1.xyz, r1.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 122
+                #line 146
                 add r2.xyz, r2.xyzx, r5.xyzx  // ambient<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r0.xyz, r0.xyzx, r6.xyzx  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r1.xyz, r1.xyzx, r7.xyzx  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 128
+                #line 152
                 add r0.xyz, r0.xyzx, r2.xyzx
                 mul r0.xyz, r0.xyzx, l(1.000000, 1.000000, 1.000000, 0.000000)
                 add r0.xyz, r1.xyzx, r0.xyzx  // litColor<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 132
+                #line 156
                 mul r0.w, cb1[17].w, l(1.000000)  // litColor<3>
                 mov o0.xyz, r0.xyzx  // PS<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov o0.w, r0.w  // PS<3>
@@ -695,7 +697,7 @@ fxgroup
                 dcl_output o3.xy
                 dcl_temps 5
                 
-                #line 68 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 77 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r0.xyz, v0.xyzx
                 mov r0.w, l(1.000000)
                 dp4 r1.x, r0.xyzw, cb0[0].xyzw  // vout<4:NaN:Inf>
@@ -705,13 +707,13 @@ fxgroup
                 dp3 r2.y, v1.xyzx, cb0[5].xyzx  // vout<8:NaN:Inf>
                 dp3 r2.z, v1.xyzx, cb0[6].xyzx  // vout<9:NaN:Inf>
                 
-                #line 72
+                #line 81
                 dp4 r3.x, r0.xyzw, cb0[8].xyzw  // vout<0:NaN:Inf>
                 dp4 r3.y, r0.xyzw, cb0[9].xyzw  // vout<1:NaN:Inf>
                 dp4 r3.z, r0.xyzw, cb0[10].xyzw  // vout<2:NaN:Inf>
                 dp4 r3.w, r0.xyzw, cb0[11].xyzw  // vout<3:NaN:Inf>
                 
-                #line 75
+                #line 84
                 mov r0.xy, v2.xyxx
                 mov r0.zw, l(0,0,0,1.000000)
                 dp4 r4.x, r0.xyzw, cb0[12].xyzw  // vout<10:NaN:Inf>
@@ -807,23 +809,23 @@ fxgroup
                 dcl_output o0.xyzw
                 dcl_temps 13
                 
-                #line 83 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 92 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 dp3 r0.x, v2.xyzx, v2.xyzx
                 rsq r0.x, r0.x
                 mul r0.xyz, r0.xxxx, v2.xyzx  // pin<7:NaN:Inf,8:NaN:Inf,9:NaN:Inf>
                 
-                #line 86
+                #line 95
                 mov r1.xyz, -v1.xyzx
                 add r1.xyz, r1.xyzx, cb0[12].xyzx  // toEye<0:Inf,1:Inf,2:Inf>
                 
-                #line 89
+                #line 98
                 dp3 r0.w, r1.xyzx, r1.xyzx
                 sqrt r0.w, r0.w  // distToEye<0:NaN:Inf>
                 
-                #line 92
+                #line 101
                 div r1.xyz, r1.xyzx, r0.wwww  // toEye<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 119
+                #line 143
                 nop 
                 mov r2.xyz, cb1[16].xyzx  // mat<0,1,2>
                 mov r3.xyz, cb1[17].xyzx  // mat<4,5,6>
@@ -866,17 +868,17 @@ fxgroup
                 movc r6.xyz, r1.wwww, r6.xyzx, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 movc r7.xyz, r1.wwww, r7.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 119 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 143 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r5.xyz, r5.xyzx  // A<0:Inf,1:Inf,2:Inf>
                 mov r6.xyz, r6.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov r7.xyz, r7.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 122
+                #line 146
                 add r5.xyz, r5.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // ambient<0:Inf,1:Inf,2:Inf>
                 add r6.xyz, r6.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r7.xyz, r7.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 119
+                #line 143
                 nop 
                 mov r8.xyz, cb0[4].xyzx  // L<0,1,2>
                 mov r9.xyz, cb0[5].xyzx  // L<4,5,6>
@@ -914,17 +916,17 @@ fxgroup
                 movc r9.xyz, r1.wwww, r9.xyzx, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 movc r10.xyz, r1.wwww, r10.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 119 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 143 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r8.xyz, r8.xyzx  // A<0:Inf,1:Inf,2:Inf>
                 mov r9.xyz, r9.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov r10.xyz, r10.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 122
+                #line 146
                 add r5.xyz, r5.xyzx, r8.xyzx  // ambient<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r6.xyz, r6.xyzx, r9.xyzx  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r7.xyz, r7.xyzx, r10.xyzx  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 119
+                #line 143
                 nop 
                 mov r8.xyz, cb0[8].xyzx  // L<0,1,2>
                 mov r9.xyz, cb0[9].xyzx  // L<4,5,6>
@@ -962,22 +964,22 @@ fxgroup
                 movc r0.xyz, r1.wwww, r0.yzwy, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 movc r1.xyz, r1.wwww, r1.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 119 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 143 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r2.xyz, r2.xyzx  // A<0:Inf,1:Inf,2:Inf>
                 mov r0.xyz, r0.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov r1.xyz, r1.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 122
+                #line 146
                 add r2.xyz, r2.xyzx, r5.xyzx  // ambient<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r0.xyz, r0.xyzx, r6.xyzx  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r1.xyz, r1.xyzx, r7.xyzx  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 128
+                #line 152
                 add r0.xyz, r0.xyzx, r2.xyzx
                 mul r0.xyz, r0.xyzx, l(1.000000, 1.000000, 1.000000, 0.000000)
                 add r0.xyz, r1.xyzx, r0.xyzx  // litColor<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 132
+                #line 156
                 mul r0.w, cb1[17].w, l(1.000000)  // litColor<3>
                 mov o0.xyz, r0.xyzx  // PS<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov o0.w, r0.w  // PS<3>
@@ -989,7 +991,7 @@ fxgroup
 
     }
 
-    technique11 Light0Tex
+    technique11 Light1TexFireAni
     {
         pass P0
         {
@@ -1059,7 +1061,7 @@ fxgroup
                 dcl_output o3.xy
                 dcl_temps 5
                 
-                #line 68 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 77 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r0.xyz, v0.xyzx
                 mov r0.w, l(1.000000)
                 dp4 r1.x, r0.xyzw, cb0[0].xyzw  // vout<4:NaN:Inf>
@@ -1069,194 +1071,13 @@ fxgroup
                 dp3 r2.y, v1.xyzx, cb0[5].xyzx  // vout<8:NaN:Inf>
                 dp3 r2.z, v1.xyzx, cb0[6].xyzx  // vout<9:NaN:Inf>
                 
-                #line 72
+                #line 81
                 dp4 r3.x, r0.xyzw, cb0[8].xyzw  // vout<0:NaN:Inf>
                 dp4 r3.y, r0.xyzw, cb0[9].xyzw  // vout<1:NaN:Inf>
                 dp4 r3.z, r0.xyzw, cb0[10].xyzw  // vout<2:NaN:Inf>
                 dp4 r3.w, r0.xyzw, cb0[11].xyzw  // vout<3:NaN:Inf>
                 
-                #line 75
-                mov r0.xy, v2.xyxx
-                mov r0.zw, l(0,0,0,1.000000)
-                dp4 r4.x, r0.xyzw, cb0[12].xyzw  // vout<10:NaN:Inf>
-                dp4 r4.y, r0.xyzw, cb0[13].xyzw  // vout<11:NaN:Inf>
-                mov o0.xyzw, r3.xyzw  // VS<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
-                mov o1.xyz, r1.xyzx  // VS<4:NaN:Inf,5:NaN:Inf,6:NaN:Inf>
-                mov o2.xyz, r2.xyzx  // VS<7:NaN:Inf,8:NaN:Inf,9:NaN:Inf>
-                mov o3.xy, r4.xyxx  // VS<10:NaN:Inf,11:NaN:Inf>
-                ret 
-                // Approximately 21 instruction slots used
-                            
-            };
-            GeometryShader = NULL;
-            PixelShader = asm {
-                //
-                // Generated by Microsoft (R) HLSL Shader Compiler 9.29.952.3111
-                //
-                //
-                // Buffer Definitions: 
-                //
-                // cbuffer cbPerObject
-                // {
-                //
-                //   float4x4 gWorld;                   // Offset:    0 Size:    64 [unused]
-                //   float4x4 gWorldInvTranspose;       // Offset:   64 Size:    64 [unused]
-                //   float4x4 gWorldViewProj;           // Offset:  128 Size:    64 [unused]
-                //   float4x4 gTexTransform;            // Offset:  192 Size:    64 [unused]
-                //   
-                //   struct Material
-                //   {
-                //       
-                //       float4 Ambient;                // Offset:  256
-                //       float4 Diffuse;                // Offset:  272
-                //       float4 Specular;               // Offset:  288
-                //       float4 Reflect;                // Offset:  304
-                //
-                //   } gMaterial;                       // Offset:  256 Size:    64
-                //
-                // }
-                //
-                //
-                // Resource Bindings:
-                //
-                // Name                                 Type  Format         Dim Slot Elements
-                // ------------------------------ ---------- ------- ----------- ---- --------
-                // samAnisotropic                    sampler      NA          NA    0        1
-                // gDiffuseMap                       texture  float4          2d    0        1
-                // cbPerObject                       cbuffer      NA          NA    0        1
-                //
-                //
-                //
-                // Input signature:
-                //
-                // Name                 Index   Mask Register SysValue Format   Used
-                // -------------------- ----- ------ -------- -------- ------ ------
-                // SV_POSITION              0   xyzw        0      POS  float       
-                // POSITION                 0   xyz         1     NONE  float       
-                // NORMAL                   0   xyz         2     NONE  float       
-                // TEXCOORD                 0   xy          3     NONE  float   xy  
-                //
-                //
-                // Output signature:
-                //
-                // Name                 Index   Mask Register SysValue Format   Used
-                // -------------------- ----- ------ -------- -------- ------ ------
-                // SV_Target                0   xyzw        0   TARGET  float   xyzw
-                //
-                ps_5_0
-                dcl_globalFlags refactoringAllowed
-                dcl_constantbuffer cb0[18], immediateIndexed
-                dcl_sampler s0, mode_default
-                dcl_resource_texture2d (float,float,float,float) t0
-                dcl_input_ps linear v3.xy
-                dcl_output o0.xyzw
-                dcl_temps 1
-                
-                #line 99 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
-                sample_indexable(texture2d)(float,float,float,float) r0.xyzw, v3.xyxx, t0.xyzw, s0  // texColor<0:Inf,1:Inf,2:Inf,3:Inf>
-                
-                #line 106
-                mov r0.xyz, r0.xyzx  // litColor<0:Inf,1:Inf,2:Inf>
-                
-                #line 132
-                mul r0.w, r0.w, cb0[17].w  // litColor<3:NaN:Inf>
-                mov o0.xyz, r0.xyzx  // PS<0:Inf,1:Inf,2:Inf>
-                mov o0.w, r0.w  // PS<3:NaN:Inf>
-                ret 
-                // Approximately 6 instruction slots used
-                            
-            };
-        }
-
-    }
-
-    technique11 Light1Tex
-    {
-        pass P0
-        {
-            VertexShader = asm {
-                //
-                // Generated by Microsoft (R) HLSL Shader Compiler 9.29.952.3111
-                //
-                //
-                // Buffer Definitions: 
-                //
-                // cbuffer cbPerObject
-                // {
-                //
-                //   float4x4 gWorld;                   // Offset:    0 Size:    64
-                //   float4x4 gWorldInvTranspose;       // Offset:   64 Size:    64
-                //   float4x4 gWorldViewProj;           // Offset:  128 Size:    64
-                //   float4x4 gTexTransform;            // Offset:  192 Size:    64
-                //   
-                //   struct Material
-                //   {
-                //       
-                //       float4 Ambient;                // Offset:  256
-                //       float4 Diffuse;                // Offset:  272
-                //       float4 Specular;               // Offset:  288
-                //       float4 Reflect;                // Offset:  304
-                //
-                //   } gMaterial;                       // Offset:  256 Size:    64 [unused]
-                //
-                // }
-                //
-                //
-                // Resource Bindings:
-                //
-                // Name                                 Type  Format         Dim Slot Elements
-                // ------------------------------ ---------- ------- ----------- ---- --------
-                // cbPerObject                       cbuffer      NA          NA    0        1
-                //
-                //
-                //
-                // Input signature:
-                //
-                // Name                 Index   Mask Register SysValue Format   Used
-                // -------------------- ----- ------ -------- -------- ------ ------
-                // POSITION                 0   xyz         0     NONE  float   xyz 
-                // NORMAL                   0   xyz         1     NONE  float   xyz 
-                // TEXCOORD                 0   xy          2     NONE  float   xy  
-                //
-                //
-                // Output signature:
-                //
-                // Name                 Index   Mask Register SysValue Format   Used
-                // -------------------- ----- ------ -------- -------- ------ ------
-                // SV_POSITION              0   xyzw        0      POS  float   xyzw
-                // POSITION                 0   xyz         1     NONE  float   xyz 
-                // NORMAL                   0   xyz         2     NONE  float   xyz 
-                // TEXCOORD                 0   xy          3     NONE  float   xy  
-                //
-                vs_5_0
-                dcl_globalFlags refactoringAllowed
-                dcl_constantbuffer cb0[14], immediateIndexed
-                dcl_input v0.xyz
-                dcl_input v1.xyz
-                dcl_input v2.xy
-                dcl_output_siv o0.xyzw, position
-                dcl_output o1.xyz
-                dcl_output o2.xyz
-                dcl_output o3.xy
-                dcl_temps 5
-                
-                #line 68 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
-                mov r0.xyz, v0.xyzx
-                mov r0.w, l(1.000000)
-                dp4 r1.x, r0.xyzw, cb0[0].xyzw  // vout<4:NaN:Inf>
-                dp4 r1.y, r0.xyzw, cb0[1].xyzw  // vout<5:NaN:Inf>
-                dp4 r1.z, r0.xyzw, cb0[2].xyzw  // vout<6:NaN:Inf>
-                dp3 r2.x, v1.xyzx, cb0[4].xyzx  // vout<7:NaN:Inf>
-                dp3 r2.y, v1.xyzx, cb0[5].xyzx  // vout<8:NaN:Inf>
-                dp3 r2.z, v1.xyzx, cb0[6].xyzx  // vout<9:NaN:Inf>
-                
-                #line 72
-                dp4 r3.x, r0.xyzw, cb0[8].xyzw  // vout<0:NaN:Inf>
-                dp4 r3.y, r0.xyzw, cb0[9].xyzw  // vout<1:NaN:Inf>
-                dp4 r3.z, r0.xyzw, cb0[10].xyzw  // vout<2:NaN:Inf>
-                dp4 r3.w, r0.xyzw, cb0[11].xyzw  // vout<3:NaN:Inf>
-                
-                #line 75
+                #line 84
                 mov r0.xy, v2.xyxx
                 mov r0.zw, l(0,0,0,1.000000)
                 dp4 r4.x, r0.xyzw, cb0[12].xyzw  // vout<10:NaN:Inf>
@@ -1357,26 +1178,26 @@ fxgroup
                 dcl_output o0.xyzw
                 dcl_temps 10
                 
-                #line 83 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 92 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 dp3 r0.x, v2.xyzx, v2.xyzx
                 rsq r0.x, r0.x
                 mul r0.xyz, r0.xxxx, v2.xyzx  // pin<7:NaN:Inf,8:NaN:Inf,9:NaN:Inf>
                 
-                #line 86
+                #line 95
                 mov r1.xyz, -v1.xyzx
                 add r1.xyz, r1.xyzx, cb0[12].xyzx  // toEye<0:Inf,1:Inf,2:Inf>
                 
-                #line 89
+                #line 98
                 dp3 r0.w, r1.xyzx, r1.xyzx
                 sqrt r0.w, r0.w  // distToEye<0:NaN:Inf>
                 
-                #line 92
+                #line 101
                 div r1.xyz, r1.xyzx, r0.wwww  // toEye<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 99
+                #line 115
                 sample_indexable(texture2d)(float,float,float,float) r2.xyzw, v3.xyxx, t0.xyzw, s0  // texColor<0:Inf,1:Inf,2:Inf,3:Inf>
                 
-                #line 119
+                #line 143
                 nop 
                 mov r3.xyz, cb1[16].xyzx  // mat<0,1,2>
                 mov r4.xyz, cb1[17].xyzx  // mat<4,5,6>
@@ -1419,22 +1240,22 @@ fxgroup
                 movc r0.xyz, r1.wwww, r0.yzwy, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 movc r1.xyz, r1.wwww, r1.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 119 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 143 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r3.xyz, r3.xyzx  // A<0:Inf,1:Inf,2:Inf>
                 mov r0.xyz, r0.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov r1.xyz, r1.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 122
+                #line 146
                 add r3.xyz, r3.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // ambient<0:Inf,1:Inf,2:Inf>
                 add r0.xyz, r0.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r1.xyz, r1.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 128
+                #line 152
                 add r0.xyz, r0.xyzx, r3.xyzx
                 mul r0.xyz, r0.xyzx, r2.xyzx
                 add r0.xyz, r1.xyzx, r0.xyzx  // litColor<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 132
+                #line 156
                 mul r0.w, r2.w, cb1[17].w  // litColor<3:NaN:Inf>
                 mov o0.xyz, r0.xyzx  // PS<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov o0.w, r0.w  // PS<3:NaN:Inf>
@@ -1446,7 +1267,7 @@ fxgroup
 
     }
 
-    technique11 Light2Tex
+    technique11 Light2TexFireAni
     {
         pass P0
         {
@@ -1516,7 +1337,7 @@ fxgroup
                 dcl_output o3.xy
                 dcl_temps 5
                 
-                #line 68 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 77 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r0.xyz, v0.xyzx
                 mov r0.w, l(1.000000)
                 dp4 r1.x, r0.xyzw, cb0[0].xyzw  // vout<4:NaN:Inf>
@@ -1526,13 +1347,13 @@ fxgroup
                 dp3 r2.y, v1.xyzx, cb0[5].xyzx  // vout<8:NaN:Inf>
                 dp3 r2.z, v1.xyzx, cb0[6].xyzx  // vout<9:NaN:Inf>
                 
-                #line 72
+                #line 81
                 dp4 r3.x, r0.xyzw, cb0[8].xyzw  // vout<0:NaN:Inf>
                 dp4 r3.y, r0.xyzw, cb0[9].xyzw  // vout<1:NaN:Inf>
                 dp4 r3.z, r0.xyzw, cb0[10].xyzw  // vout<2:NaN:Inf>
                 dp4 r3.w, r0.xyzw, cb0[11].xyzw  // vout<3:NaN:Inf>
                 
-                #line 75
+                #line 84
                 mov r0.xy, v2.xyxx
                 mov r0.zw, l(0,0,0,1.000000)
                 dp4 r4.x, r0.xyzw, cb0[12].xyzw  // vout<10:NaN:Inf>
@@ -1633,26 +1454,26 @@ fxgroup
                 dcl_output o0.xyzw
                 dcl_temps 13
                 
-                #line 83 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 92 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 dp3 r0.x, v2.xyzx, v2.xyzx
                 rsq r0.x, r0.x
                 mul r0.xyz, r0.xxxx, v2.xyzx  // pin<7:NaN:Inf,8:NaN:Inf,9:NaN:Inf>
                 
-                #line 86
+                #line 95
                 mov r1.xyz, -v1.xyzx
                 add r1.xyz, r1.xyzx, cb0[12].xyzx  // toEye<0:Inf,1:Inf,2:Inf>
                 
-                #line 89
+                #line 98
                 dp3 r0.w, r1.xyzx, r1.xyzx
                 sqrt r0.w, r0.w  // distToEye<0:NaN:Inf>
                 
-                #line 92
+                #line 101
                 div r1.xyz, r1.xyzx, r0.wwww  // toEye<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 99
+                #line 115
                 sample_indexable(texture2d)(float,float,float,float) r2.xyzw, v3.xyxx, t0.xyzw, s0  // texColor<0:Inf,1:Inf,2:Inf,3:Inf>
                 
-                #line 119
+                #line 143
                 nop 
                 mov r3.xyz, cb1[16].xyzx  // mat<0,1,2>
                 mov r4.xyz, cb1[17].xyzx  // mat<4,5,6>
@@ -1695,17 +1516,17 @@ fxgroup
                 movc r7.xyz, r1.wwww, r7.xyzx, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 movc r8.xyz, r1.wwww, r8.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 119 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 143 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r6.xyz, r6.xyzx  // A<0:Inf,1:Inf,2:Inf>
                 mov r7.xyz, r7.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov r8.xyz, r8.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 122
+                #line 146
                 add r6.xyz, r6.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // ambient<0:Inf,1:Inf,2:Inf>
                 add r7.xyz, r7.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r8.xyz, r8.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 119
+                #line 143
                 nop 
                 mov r9.xyz, cb0[4].xyzx  // L<0,1,2>
                 mov r10.xyz, cb0[5].xyzx  // L<4,5,6>
@@ -1743,22 +1564,22 @@ fxgroup
                 movc r0.xyz, r1.wwww, r0.yzwy, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 movc r1.xyz, r1.wwww, r1.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 119 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 143 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r3.xyz, r3.xyzx  // A<0:Inf,1:Inf,2:Inf>
                 mov r0.xyz, r0.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov r1.xyz, r1.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 122
+                #line 146
                 add r3.xyz, r3.xyzx, r6.xyzx  // ambient<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r0.xyz, r0.xyzx, r7.xyzx  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r1.xyz, r1.xyzx, r8.xyzx  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 128
+                #line 152
                 add r0.xyz, r0.xyzx, r3.xyzx
                 mul r0.xyz, r0.xyzx, r2.xyzx
                 add r0.xyz, r1.xyzx, r0.xyzx  // litColor<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 132
+                #line 156
                 mul r0.w, r2.w, cb1[17].w  // litColor<3:NaN:Inf>
                 mov o0.xyz, r0.xyzx  // PS<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov o0.w, r0.w  // PS<3:NaN:Inf>
@@ -1770,7 +1591,7 @@ fxgroup
 
     }
 
-    technique11 Light3Tex
+    technique11 Light3TexFireAni
     {
         pass P0
         {
@@ -1840,7 +1661,7 @@ fxgroup
                 dcl_output o3.xy
                 dcl_temps 5
                 
-                #line 68 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 77 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r0.xyz, v0.xyzx
                 mov r0.w, l(1.000000)
                 dp4 r1.x, r0.xyzw, cb0[0].xyzw  // vout<4:NaN:Inf>
@@ -1850,13 +1671,13 @@ fxgroup
                 dp3 r2.y, v1.xyzx, cb0[5].xyzx  // vout<8:NaN:Inf>
                 dp3 r2.z, v1.xyzx, cb0[6].xyzx  // vout<9:NaN:Inf>
                 
-                #line 72
+                #line 81
                 dp4 r3.x, r0.xyzw, cb0[8].xyzw  // vout<0:NaN:Inf>
                 dp4 r3.y, r0.xyzw, cb0[9].xyzw  // vout<1:NaN:Inf>
                 dp4 r3.z, r0.xyzw, cb0[10].xyzw  // vout<2:NaN:Inf>
                 dp4 r3.w, r0.xyzw, cb0[11].xyzw  // vout<3:NaN:Inf>
                 
-                #line 75
+                #line 84
                 mov r0.xy, v2.xyxx
                 mov r0.zw, l(0,0,0,1.000000)
                 dp4 r4.x, r0.xyzw, cb0[12].xyzw  // vout<10:NaN:Inf>
@@ -1957,26 +1778,26 @@ fxgroup
                 dcl_output o0.xyzw
                 dcl_temps 14
                 
-                #line 83 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 92 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 dp3 r0.x, v2.xyzx, v2.xyzx
                 rsq r0.x, r0.x
                 mul r0.xyz, r0.xxxx, v2.xyzx  // pin<7:NaN:Inf,8:NaN:Inf,9:NaN:Inf>
                 
-                #line 86
+                #line 95
                 mov r1.xyz, -v1.xyzx
                 add r1.xyz, r1.xyzx, cb0[12].xyzx  // toEye<0:Inf,1:Inf,2:Inf>
                 
-                #line 89
+                #line 98
                 dp3 r0.w, r1.xyzx, r1.xyzx
                 sqrt r0.w, r0.w  // distToEye<0:NaN:Inf>
                 
-                #line 92
+                #line 101
                 div r1.xyz, r1.xyzx, r0.wwww  // toEye<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 99
+                #line 115
                 sample_indexable(texture2d)(float,float,float,float) r2.xyzw, v3.xyxx, t0.xyzw, s0  // texColor<0:Inf,1:Inf,2:Inf,3:Inf>
                 
-                #line 119
+                #line 143
                 nop 
                 mov r3.xyz, cb1[16].xyzx  // mat<0,1,2>
                 mov r4.xyz, cb1[17].xyzx  // mat<4,5,6>
@@ -2019,17 +1840,17 @@ fxgroup
                 movc r7.xyz, r1.wwww, r7.xyzx, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 movc r8.xyz, r1.wwww, r8.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 119 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 143 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r6.xyz, r6.xyzx  // A<0:Inf,1:Inf,2:Inf>
                 mov r7.xyz, r7.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov r8.xyz, r8.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 122
+                #line 146
                 add r6.xyz, r6.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // ambient<0:Inf,1:Inf,2:Inf>
                 add r7.xyz, r7.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r8.xyz, r8.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 119
+                #line 143
                 nop 
                 mov r9.xyz, cb0[4].xyzx  // L<0,1,2>
                 mov r10.xyz, cb0[5].xyzx  // L<4,5,6>
@@ -2067,17 +1888,17 @@ fxgroup
                 movc r10.xyz, r1.wwww, r10.xyzx, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 movc r11.xyz, r1.wwww, r11.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 119 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 143 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r9.xyz, r9.xyzx  // A<0:Inf,1:Inf,2:Inf>
                 mov r10.xyz, r10.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov r11.xyz, r11.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 122
+                #line 146
                 add r6.xyz, r6.xyzx, r9.xyzx  // ambient<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r7.xyz, r7.xyzx, r10.xyzx  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r8.xyz, r8.xyzx, r11.xyzx  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 119
+                #line 143
                 nop 
                 mov r9.xyz, cb0[8].xyzx  // L<0,1,2>
                 mov r10.xyz, cb0[9].xyzx  // L<4,5,6>
@@ -2115,27 +1936,1011 @@ fxgroup
                 movc r0.xyz, r1.wwww, r0.yzwy, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 movc r1.xyz, r1.wwww, r1.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 119 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                #line 143 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
                 mov r3.xyz, r3.xyzx  // A<0:Inf,1:Inf,2:Inf>
                 mov r0.xyz, r0.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov r1.xyz, r1.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 122
+                #line 146
                 add r3.xyz, r3.xyzx, r6.xyzx  // ambient<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r0.xyz, r0.xyzx, r7.xyzx  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 add r1.xyz, r1.xyzx, r8.xyzx  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 128
+                #line 152
                 add r0.xyz, r0.xyzx, r3.xyzx
                 mul r0.xyz, r0.xyzx, r2.xyzx
                 add r0.xyz, r1.xyzx, r0.xyzx  // litColor<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 
-                #line 132
+                #line 156
                 mul r0.w, r2.w, cb1[17].w  // litColor<3:NaN:Inf>
                 mov o0.xyz, r0.xyzx  // PS<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
                 mov o0.w, r0.w  // PS<3:NaN:Inf>
                 ret 
                 // Approximately 117 instruction slots used
+                            
+            };
+        }
+
+    }
+
+    technique11 Light1TexFireBall
+    {
+        pass P0
+        {
+            VertexShader = asm {
+                //
+                // Generated by Microsoft (R) HLSL Shader Compiler 9.29.952.3111
+                //
+                //
+                // Buffer Definitions: 
+                //
+                // cbuffer cbPerObject
+                // {
+                //
+                //   float4x4 gWorld;                   // Offset:    0 Size:    64
+                //   float4x4 gWorldInvTranspose;       // Offset:   64 Size:    64
+                //   float4x4 gWorldViewProj;           // Offset:  128 Size:    64
+                //   float4x4 gTexTransform;            // Offset:  192 Size:    64
+                //   
+                //   struct Material
+                //   {
+                //       
+                //       float4 Ambient;                // Offset:  256
+                //       float4 Diffuse;                // Offset:  272
+                //       float4 Specular;               // Offset:  288
+                //       float4 Reflect;                // Offset:  304
+                //
+                //   } gMaterial;                       // Offset:  256 Size:    64 [unused]
+                //
+                // }
+                //
+                //
+                // Resource Bindings:
+                //
+                // Name                                 Type  Format         Dim Slot Elements
+                // ------------------------------ ---------- ------- ----------- ---- --------
+                // cbPerObject                       cbuffer      NA          NA    0        1
+                //
+                //
+                //
+                // Input signature:
+                //
+                // Name                 Index   Mask Register SysValue Format   Used
+                // -------------------- ----- ------ -------- -------- ------ ------
+                // POSITION                 0   xyz         0     NONE  float   xyz 
+                // NORMAL                   0   xyz         1     NONE  float   xyz 
+                // TEXCOORD                 0   xy          2     NONE  float   xy  
+                //
+                //
+                // Output signature:
+                //
+                // Name                 Index   Mask Register SysValue Format   Used
+                // -------------------- ----- ------ -------- -------- ------ ------
+                // SV_POSITION              0   xyzw        0      POS  float   xyzw
+                // POSITION                 0   xyz         1     NONE  float   xyz 
+                // NORMAL                   0   xyz         2     NONE  float   xyz 
+                // TEXCOORD                 0   xy          3     NONE  float   xy  
+                //
+                vs_5_0
+                dcl_globalFlags refactoringAllowed
+                dcl_constantbuffer cb0[14], immediateIndexed
+                dcl_input v0.xyz
+                dcl_input v1.xyz
+                dcl_input v2.xy
+                dcl_output_siv o0.xyzw, position
+                dcl_output o1.xyz
+                dcl_output o2.xyz
+                dcl_output o3.xy
+                dcl_temps 5
+                
+                #line 77 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                mov r0.xyz, v0.xyzx
+                mov r0.w, l(1.000000)
+                dp4 r1.x, r0.xyzw, cb0[0].xyzw  // vout<4:NaN:Inf>
+                dp4 r1.y, r0.xyzw, cb0[1].xyzw  // vout<5:NaN:Inf>
+                dp4 r1.z, r0.xyzw, cb0[2].xyzw  // vout<6:NaN:Inf>
+                dp3 r2.x, v1.xyzx, cb0[4].xyzx  // vout<7:NaN:Inf>
+                dp3 r2.y, v1.xyzx, cb0[5].xyzx  // vout<8:NaN:Inf>
+                dp3 r2.z, v1.xyzx, cb0[6].xyzx  // vout<9:NaN:Inf>
+                
+                #line 81
+                dp4 r3.x, r0.xyzw, cb0[8].xyzw  // vout<0:NaN:Inf>
+                dp4 r3.y, r0.xyzw, cb0[9].xyzw  // vout<1:NaN:Inf>
+                dp4 r3.z, r0.xyzw, cb0[10].xyzw  // vout<2:NaN:Inf>
+                dp4 r3.w, r0.xyzw, cb0[11].xyzw  // vout<3:NaN:Inf>
+                
+                #line 84
+                mov r0.xy, v2.xyxx
+                mov r0.zw, l(0,0,0,1.000000)
+                dp4 r4.x, r0.xyzw, cb0[12].xyzw  // vout<10:NaN:Inf>
+                dp4 r4.y, r0.xyzw, cb0[13].xyzw  // vout<11:NaN:Inf>
+                mov o0.xyzw, r3.xyzw  // VS<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                mov o1.xyz, r1.xyzx  // VS<4:NaN:Inf,5:NaN:Inf,6:NaN:Inf>
+                mov o2.xyz, r2.xyzx  // VS<7:NaN:Inf,8:NaN:Inf,9:NaN:Inf>
+                mov o3.xy, r4.xyxx  // VS<10:NaN:Inf,11:NaN:Inf>
+                ret 
+                // Approximately 21 instruction slots used
+                            
+            };
+            GeometryShader = NULL;
+            PixelShader = asm {
+                //
+                // Generated by Microsoft (R) HLSL Shader Compiler 9.29.952.3111
+                //
+                //
+                // Buffer Definitions: 
+                //
+                // cbuffer cbPerFrame
+                // {
+                //
+                //   struct DirectionalLight
+                //   {
+                //       
+                //       float4 Ambient;                // Offset:    0
+                //       float4 Diffuse;                // Offset:   16
+                //       float4 Specular;               // Offset:   32
+                //       float3 Direction;              // Offset:   48
+                //       float pad;                     // Offset:   60
+                //
+                //   } gDirLights[3];                   // Offset:    0 Size:   192
+                //   float3 gEyePosW;                   // Offset:  192 Size:    12
+                //   float gFogStart;                   // Offset:  204 Size:     4 [unused]
+                //   float gFogRange;                   // Offset:  208 Size:     4 [unused]
+                //   float4 gFogColor;                  // Offset:  224 Size:    16 [unused]
+                //
+                // }
+                //
+                // cbuffer cbPerObject
+                // {
+                //
+                //   float4x4 gWorld;                   // Offset:    0 Size:    64 [unused]
+                //   float4x4 gWorldInvTranspose;       // Offset:   64 Size:    64 [unused]
+                //   float4x4 gWorldViewProj;           // Offset:  128 Size:    64 [unused]
+                //   float4x4 gTexTransform;            // Offset:  192 Size:    64 [unused]
+                //   
+                //   struct Material
+                //   {
+                //       
+                //       float4 Ambient;                // Offset:  256
+                //       float4 Diffuse;                // Offset:  272
+                //       float4 Specular;               // Offset:  288
+                //       float4 Reflect;                // Offset:  304
+                //
+                //   } gMaterial;                       // Offset:  256 Size:    64
+                //
+                // }
+                //
+                //
+                // Resource Bindings:
+                //
+                // Name                                 Type  Format         Dim Slot Elements
+                // ------------------------------ ---------- ------- ----------- ---- --------
+                // samAnisotropic                    sampler      NA          NA    0        1
+                // gFlareAlphaMap                    texture  float4          2d    0        1
+                // gFlareMap                         texture  float4          2d    1        1
+                // cbPerFrame                        cbuffer      NA          NA    0        1
+                // cbPerObject                       cbuffer      NA          NA    1        1
+                //
+                //
+                //
+                // Input signature:
+                //
+                // Name                 Index   Mask Register SysValue Format   Used
+                // -------------------- ----- ------ -------- -------- ------ ------
+                // SV_POSITION              0   xyzw        0      POS  float       
+                // POSITION                 0   xyz         1     NONE  float   xyz 
+                // NORMAL                   0   xyz         2     NONE  float   xyz 
+                // TEXCOORD                 0   xy          3     NONE  float   xy  
+                //
+                //
+                // Output signature:
+                //
+                // Name                 Index   Mask Register SysValue Format   Used
+                // -------------------- ----- ------ -------- -------- ------ ------
+                // SV_Target                0   xyzw        0   TARGET  float   xyzw
+                //
+                ps_5_0
+                dcl_globalFlags refactoringAllowed
+                dcl_constantbuffer cb0[13], immediateIndexed
+                dcl_constantbuffer cb1[19], immediateIndexed
+                dcl_sampler s0, mode_default
+                dcl_resource_texture2d (float,float,float,float) t0
+                dcl_resource_texture2d (float,float,float,float) t1
+                dcl_input_ps linear v1.xyz
+                dcl_input_ps linear v2.xyz
+                dcl_input_ps linear v3.xy
+                dcl_output o0.xyzw
+                dcl_temps 10
+                
+                #line 92 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                dp3 r0.x, v2.xyzx, v2.xyzx
+                rsq r0.x, r0.x
+                mul r0.xyz, r0.xxxx, v2.xyzx  // pin<7:NaN:Inf,8:NaN:Inf,9:NaN:Inf>
+                
+                #line 95
+                mov r1.xyz, -v1.xyzx
+                add r1.xyz, r1.xyzx, cb0[12].xyzx  // toEye<0:Inf,1:Inf,2:Inf>
+                
+                #line 98
+                dp3 r0.w, r1.xyzx, r1.xyzx
+                sqrt r0.w, r0.w  // distToEye<0:NaN:Inf>
+                
+                #line 101
+                div r1.xyz, r1.xyzx, r0.wwww  // toEye<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 120
+                sample_indexable(texture2d)(float,float,float,float) r2.xyzw, v3.xyxx, t1.xyzw, s0  // flareColor<0:Inf,1:Inf,2:Inf,3:Inf>
+                sample_indexable(texture2d)(float,float,float,float) r3.xyzw, v3.xyxx, t0.xyzw, s0  // flareAlphaColor<0:Inf,1:Inf,2:Inf,3:Inf>
+                mul r2.xyzw, r2.xyzw, r3.xyzw  // texColor<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                
+                #line 143
+                nop 
+                mov r3.xyz, cb1[16].xyzx  // mat<0,1,2>
+                mov r4.xyz, cb1[17].xyzx  // mat<4,5,6>
+                mov r5.xyzw, cb1[18].xyzw  // mat<8,9,10,11>
+                mov r6.xyz, cb0[0].xyzx  // L<0,1,2>
+                mov r7.xyz, cb0[1].xyzx  // L<4,5,6>
+                mov r8.xyz, cb0[2].xyzx  // L<8,9,10>
+                mov r9.xyz, cb0[3].xyzx  // L<12,13,14>
+                mov r0.xyz, r0.xyzx  // normal<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                mov r1.xyz, r1.xyzx  // toEye<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 70 "LightHelper.fx"
+                mov r9.xyz, -r9.xyzx  // lightVec<0,1,2>
+                
+                #line 73
+                mul r3.xyz, r3.xyzx, r6.xyzx  // ambient<0:Inf,1:Inf,2:Inf>
+                
+                #line 78
+                dp3 r0.w, r9.xyzx, r0.xyzx  // diffuseFactor<0:NaN:Inf>
+                
+                #line 82
+                lt r1.w, l(0.000000), r0.w
+                mov r6.xyz, -r9.xyzx
+                dp3 r3.w, r6.xyzx, r0.xyzx
+                add r3.w, r3.w, r3.w
+                mov r3.w, -r3.w
+                mul r0.xyz, r0.xyzx, r3.wwww
+                add r0.xyz, r6.xyzx, r0.xyzx  // v<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                dp3 r0.x, r0.xyzx, r1.xyzx
+                max r0.x, r0.x, l(0.000000)
+                log r0.x, r0.x
+                mul r0.x, r0.x, r5.w
+                exp r0.x, r0.x  // specFactor<0:NaN:Inf>
+                mul r0.yzw, r4.xxyz, r0.wwww
+                mul r0.yzw, r7.xxyz, r0.yyzw  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                mul r1.xyz, r5.xyzx, r0.xxxx
+                mul r1.xyz, r8.xyzx, r1.xyzx  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 82
+                movc r0.xyz, r1.wwww, r0.yzwy, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                movc r1.xyz, r1.wwww, r1.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 143 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                mov r3.xyz, r3.xyzx  // A<0:Inf,1:Inf,2:Inf>
+                mov r0.xyz, r0.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                mov r1.xyz, r1.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 146
+                add r3.xyz, r3.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // ambient<0:Inf,1:Inf,2:Inf>
+                add r0.xyz, r0.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                add r1.xyz, r1.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 152
+                add r0.xyz, r0.xyzx, r3.xyzx
+                mul r0.xyz, r0.xyzx, r2.xyzx
+                add r0.xyz, r1.xyzx, r0.xyzx  // litColor<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 156
+                mul r0.w, r2.w, cb1[17].w  // litColor<3:NaN:Inf>
+                mov o0.xyz, r0.xyzx  // PS<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                mov o0.w, r0.w  // PS<3:NaN:Inf>
+                ret 
+                // Approximately 55 instruction slots used
+                            
+            };
+        }
+
+    }
+
+    technique11 Light2TexFireBall
+    {
+        pass P0
+        {
+            VertexShader = asm {
+                //
+                // Generated by Microsoft (R) HLSL Shader Compiler 9.29.952.3111
+                //
+                //
+                // Buffer Definitions: 
+                //
+                // cbuffer cbPerObject
+                // {
+                //
+                //   float4x4 gWorld;                   // Offset:    0 Size:    64
+                //   float4x4 gWorldInvTranspose;       // Offset:   64 Size:    64
+                //   float4x4 gWorldViewProj;           // Offset:  128 Size:    64
+                //   float4x4 gTexTransform;            // Offset:  192 Size:    64
+                //   
+                //   struct Material
+                //   {
+                //       
+                //       float4 Ambient;                // Offset:  256
+                //       float4 Diffuse;                // Offset:  272
+                //       float4 Specular;               // Offset:  288
+                //       float4 Reflect;                // Offset:  304
+                //
+                //   } gMaterial;                       // Offset:  256 Size:    64 [unused]
+                //
+                // }
+                //
+                //
+                // Resource Bindings:
+                //
+                // Name                                 Type  Format         Dim Slot Elements
+                // ------------------------------ ---------- ------- ----------- ---- --------
+                // cbPerObject                       cbuffer      NA          NA    0        1
+                //
+                //
+                //
+                // Input signature:
+                //
+                // Name                 Index   Mask Register SysValue Format   Used
+                // -------------------- ----- ------ -------- -------- ------ ------
+                // POSITION                 0   xyz         0     NONE  float   xyz 
+                // NORMAL                   0   xyz         1     NONE  float   xyz 
+                // TEXCOORD                 0   xy          2     NONE  float   xy  
+                //
+                //
+                // Output signature:
+                //
+                // Name                 Index   Mask Register SysValue Format   Used
+                // -------------------- ----- ------ -------- -------- ------ ------
+                // SV_POSITION              0   xyzw        0      POS  float   xyzw
+                // POSITION                 0   xyz         1     NONE  float   xyz 
+                // NORMAL                   0   xyz         2     NONE  float   xyz 
+                // TEXCOORD                 0   xy          3     NONE  float   xy  
+                //
+                vs_5_0
+                dcl_globalFlags refactoringAllowed
+                dcl_constantbuffer cb0[14], immediateIndexed
+                dcl_input v0.xyz
+                dcl_input v1.xyz
+                dcl_input v2.xy
+                dcl_output_siv o0.xyzw, position
+                dcl_output o1.xyz
+                dcl_output o2.xyz
+                dcl_output o3.xy
+                dcl_temps 5
+                
+                #line 77 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                mov r0.xyz, v0.xyzx
+                mov r0.w, l(1.000000)
+                dp4 r1.x, r0.xyzw, cb0[0].xyzw  // vout<4:NaN:Inf>
+                dp4 r1.y, r0.xyzw, cb0[1].xyzw  // vout<5:NaN:Inf>
+                dp4 r1.z, r0.xyzw, cb0[2].xyzw  // vout<6:NaN:Inf>
+                dp3 r2.x, v1.xyzx, cb0[4].xyzx  // vout<7:NaN:Inf>
+                dp3 r2.y, v1.xyzx, cb0[5].xyzx  // vout<8:NaN:Inf>
+                dp3 r2.z, v1.xyzx, cb0[6].xyzx  // vout<9:NaN:Inf>
+                
+                #line 81
+                dp4 r3.x, r0.xyzw, cb0[8].xyzw  // vout<0:NaN:Inf>
+                dp4 r3.y, r0.xyzw, cb0[9].xyzw  // vout<1:NaN:Inf>
+                dp4 r3.z, r0.xyzw, cb0[10].xyzw  // vout<2:NaN:Inf>
+                dp4 r3.w, r0.xyzw, cb0[11].xyzw  // vout<3:NaN:Inf>
+                
+                #line 84
+                mov r0.xy, v2.xyxx
+                mov r0.zw, l(0,0,0,1.000000)
+                dp4 r4.x, r0.xyzw, cb0[12].xyzw  // vout<10:NaN:Inf>
+                dp4 r4.y, r0.xyzw, cb0[13].xyzw  // vout<11:NaN:Inf>
+                mov o0.xyzw, r3.xyzw  // VS<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                mov o1.xyz, r1.xyzx  // VS<4:NaN:Inf,5:NaN:Inf,6:NaN:Inf>
+                mov o2.xyz, r2.xyzx  // VS<7:NaN:Inf,8:NaN:Inf,9:NaN:Inf>
+                mov o3.xy, r4.xyxx  // VS<10:NaN:Inf,11:NaN:Inf>
+                ret 
+                // Approximately 21 instruction slots used
+                            
+            };
+            GeometryShader = NULL;
+            PixelShader = asm {
+                //
+                // Generated by Microsoft (R) HLSL Shader Compiler 9.29.952.3111
+                //
+                //
+                // Buffer Definitions: 
+                //
+                // cbuffer cbPerFrame
+                // {
+                //
+                //   struct DirectionalLight
+                //   {
+                //       
+                //       float4 Ambient;                // Offset:    0
+                //       float4 Diffuse;                // Offset:   16
+                //       float4 Specular;               // Offset:   32
+                //       float3 Direction;              // Offset:   48
+                //       float pad;                     // Offset:   60
+                //
+                //   } gDirLights[3];                   // Offset:    0 Size:   192
+                //   float3 gEyePosW;                   // Offset:  192 Size:    12
+                //   float gFogStart;                   // Offset:  204 Size:     4 [unused]
+                //   float gFogRange;                   // Offset:  208 Size:     4 [unused]
+                //   float4 gFogColor;                  // Offset:  224 Size:    16 [unused]
+                //
+                // }
+                //
+                // cbuffer cbPerObject
+                // {
+                //
+                //   float4x4 gWorld;                   // Offset:    0 Size:    64 [unused]
+                //   float4x4 gWorldInvTranspose;       // Offset:   64 Size:    64 [unused]
+                //   float4x4 gWorldViewProj;           // Offset:  128 Size:    64 [unused]
+                //   float4x4 gTexTransform;            // Offset:  192 Size:    64 [unused]
+                //   
+                //   struct Material
+                //   {
+                //       
+                //       float4 Ambient;                // Offset:  256
+                //       float4 Diffuse;                // Offset:  272
+                //       float4 Specular;               // Offset:  288
+                //       float4 Reflect;                // Offset:  304
+                //
+                //   } gMaterial;                       // Offset:  256 Size:    64
+                //
+                // }
+                //
+                //
+                // Resource Bindings:
+                //
+                // Name                                 Type  Format         Dim Slot Elements
+                // ------------------------------ ---------- ------- ----------- ---- --------
+                // samAnisotropic                    sampler      NA          NA    0        1
+                // gFlareAlphaMap                    texture  float4          2d    0        1
+                // gFlareMap                         texture  float4          2d    1        1
+                // cbPerFrame                        cbuffer      NA          NA    0        1
+                // cbPerObject                       cbuffer      NA          NA    1        1
+                //
+                //
+                //
+                // Input signature:
+                //
+                // Name                 Index   Mask Register SysValue Format   Used
+                // -------------------- ----- ------ -------- -------- ------ ------
+                // SV_POSITION              0   xyzw        0      POS  float       
+                // POSITION                 0   xyz         1     NONE  float   xyz 
+                // NORMAL                   0   xyz         2     NONE  float   xyz 
+                // TEXCOORD                 0   xy          3     NONE  float   xy  
+                //
+                //
+                // Output signature:
+                //
+                // Name                 Index   Mask Register SysValue Format   Used
+                // -------------------- ----- ------ -------- -------- ------ ------
+                // SV_Target                0   xyzw        0   TARGET  float   xyzw
+                //
+                ps_5_0
+                dcl_globalFlags refactoringAllowed
+                dcl_constantbuffer cb0[13], immediateIndexed
+                dcl_constantbuffer cb1[19], immediateIndexed
+                dcl_sampler s0, mode_default
+                dcl_resource_texture2d (float,float,float,float) t0
+                dcl_resource_texture2d (float,float,float,float) t1
+                dcl_input_ps linear v1.xyz
+                dcl_input_ps linear v2.xyz
+                dcl_input_ps linear v3.xy
+                dcl_output o0.xyzw
+                dcl_temps 13
+                
+                #line 92 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                dp3 r0.x, v2.xyzx, v2.xyzx
+                rsq r0.x, r0.x
+                mul r0.xyz, r0.xxxx, v2.xyzx  // pin<7:NaN:Inf,8:NaN:Inf,9:NaN:Inf>
+                
+                #line 95
+                mov r1.xyz, -v1.xyzx
+                add r1.xyz, r1.xyzx, cb0[12].xyzx  // toEye<0:Inf,1:Inf,2:Inf>
+                
+                #line 98
+                dp3 r0.w, r1.xyzx, r1.xyzx
+                sqrt r0.w, r0.w  // distToEye<0:NaN:Inf>
+                
+                #line 101
+                div r1.xyz, r1.xyzx, r0.wwww  // toEye<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 120
+                sample_indexable(texture2d)(float,float,float,float) r2.xyzw, v3.xyxx, t1.xyzw, s0  // flareColor<0:Inf,1:Inf,2:Inf,3:Inf>
+                sample_indexable(texture2d)(float,float,float,float) r3.xyzw, v3.xyxx, t0.xyzw, s0  // flareAlphaColor<0:Inf,1:Inf,2:Inf,3:Inf>
+                mul r2.xyzw, r2.xyzw, r3.xyzw  // texColor<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                
+                #line 143
+                nop 
+                mov r3.xyz, cb1[16].xyzx  // mat<0,1,2>
+                mov r4.xyz, cb1[17].xyzx  // mat<4,5,6>
+                mov r5.xyzw, cb1[18].xyzw  // mat<8,9,10,11>
+                mov r6.xyz, cb0[0].xyzx  // L<0,1,2>
+                mov r7.xyz, cb0[1].xyzx  // L<4,5,6>
+                mov r8.xyz, cb0[2].xyzx  // L<8,9,10>
+                mov r9.xyz, cb0[3].xyzx  // L<12,13,14>
+                mov r0.xyz, r0.xyzx  // normal<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                mov r1.xyz, r1.xyzx  // toEye<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 70 "LightHelper.fx"
+                mov r9.xyz, -r9.xyzx  // lightVec<0,1,2>
+                
+                #line 73
+                mul r6.xyz, r3.xyzx, r6.xyzx  // ambient<0:Inf,1:Inf,2:Inf>
+                
+                #line 78
+                dp3 r0.w, r9.xyzx, r0.xyzx  // diffuseFactor<0:NaN:Inf>
+                
+                #line 82
+                lt r1.w, l(0.000000), r0.w
+                mov r9.xyz, -r9.xyzx
+                dp3 r3.w, r9.xyzx, r0.xyzx
+                add r3.w, r3.w, r3.w
+                mov r3.w, -r3.w
+                mul r10.xyz, r0.xyzx, r3.wwww
+                add r9.xyz, r9.xyzx, r10.xyzx  // v<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                dp3 r3.w, r9.xyzx, r1.xyzx
+                max r3.w, r3.w, l(0.000000)
+                log r3.w, r3.w
+                mul r3.w, r3.w, r5.w
+                exp r3.w, r3.w  // specFactor<0:NaN:Inf>
+                mul r9.xyz, r4.xyzx, r0.wwww
+                mul r7.xyz, r7.xyzx, r9.xyzx  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                mul r9.xyz, r5.xyzx, r3.wwww
+                mul r8.xyz, r8.xyzx, r9.xyzx  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 82
+                movc r7.xyz, r1.wwww, r7.xyzx, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                movc r8.xyz, r1.wwww, r8.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 143 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                mov r6.xyz, r6.xyzx  // A<0:Inf,1:Inf,2:Inf>
+                mov r7.xyz, r7.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                mov r8.xyz, r8.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 146
+                add r6.xyz, r6.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // ambient<0:Inf,1:Inf,2:Inf>
+                add r7.xyz, r7.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                add r8.xyz, r8.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 143
+                nop 
+                mov r9.xyz, cb0[4].xyzx  // L<0,1,2>
+                mov r10.xyz, cb0[5].xyzx  // L<4,5,6>
+                mov r11.xyz, cb0[6].xyzx  // L<8,9,10>
+                mov r12.xyz, cb0[7].xyzx  // L<12,13,14>
+                
+                #line 70 "LightHelper.fx"
+                mov r12.xyz, -r12.xyzx  // lightVec<0,1,2>
+                
+                #line 73
+                mul r3.xyz, r3.xyzx, r9.xyzx  // ambient<0:Inf,1:Inf,2:Inf>
+                
+                #line 78
+                dp3 r0.w, r12.xyzx, r0.xyzx  // diffuseFactor<0:NaN:Inf>
+                
+                #line 82
+                lt r1.w, l(0.000000), r0.w
+                mov r9.xyz, -r12.xyzx
+                dp3 r3.w, r9.xyzx, r0.xyzx
+                add r3.w, r3.w, r3.w
+                mov r3.w, -r3.w
+                mul r0.xyz, r0.xyzx, r3.wwww
+                add r0.xyz, r9.xyzx, r0.xyzx  // v<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                dp3 r0.x, r0.xyzx, r1.xyzx
+                max r0.x, r0.x, l(0.000000)
+                log r0.x, r0.x
+                mul r0.x, r0.x, r5.w
+                exp r0.x, r0.x  // specFactor<0:NaN:Inf>
+                mul r0.yzw, r4.xxyz, r0.wwww
+                mul r0.yzw, r10.xxyz, r0.yyzw  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                mul r1.xyz, r5.xyzx, r0.xxxx
+                mul r1.xyz, r11.xyzx, r1.xyzx  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 82
+                movc r0.xyz, r1.wwww, r0.yzwy, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                movc r1.xyz, r1.wwww, r1.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 143 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                mov r3.xyz, r3.xyzx  // A<0:Inf,1:Inf,2:Inf>
+                mov r0.xyz, r0.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                mov r1.xyz, r1.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 146
+                add r3.xyz, r3.xyzx, r6.xyzx  // ambient<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                add r0.xyz, r0.xyzx, r7.xyzx  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                add r1.xyz, r1.xyzx, r8.xyzx  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 152
+                add r0.xyz, r0.xyzx, r3.xyzx
+                mul r0.xyz, r0.xyzx, r2.xyzx
+                add r0.xyz, r1.xyzx, r0.xyzx  // litColor<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 156
+                mul r0.w, r2.w, cb1[17].w  // litColor<3:NaN:Inf>
+                mov o0.xyz, r0.xyzx  // PS<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                mov o0.w, r0.w  // PS<3:NaN:Inf>
+                ret 
+                // Approximately 87 instruction slots used
+                            
+            };
+        }
+
+    }
+
+    technique11 Light3TexFireBall
+    {
+        pass P0
+        {
+            VertexShader = asm {
+                //
+                // Generated by Microsoft (R) HLSL Shader Compiler 9.29.952.3111
+                //
+                //
+                // Buffer Definitions: 
+                //
+                // cbuffer cbPerObject
+                // {
+                //
+                //   float4x4 gWorld;                   // Offset:    0 Size:    64
+                //   float4x4 gWorldInvTranspose;       // Offset:   64 Size:    64
+                //   float4x4 gWorldViewProj;           // Offset:  128 Size:    64
+                //   float4x4 gTexTransform;            // Offset:  192 Size:    64
+                //   
+                //   struct Material
+                //   {
+                //       
+                //       float4 Ambient;                // Offset:  256
+                //       float4 Diffuse;                // Offset:  272
+                //       float4 Specular;               // Offset:  288
+                //       float4 Reflect;                // Offset:  304
+                //
+                //   } gMaterial;                       // Offset:  256 Size:    64 [unused]
+                //
+                // }
+                //
+                //
+                // Resource Bindings:
+                //
+                // Name                                 Type  Format         Dim Slot Elements
+                // ------------------------------ ---------- ------- ----------- ---- --------
+                // cbPerObject                       cbuffer      NA          NA    0        1
+                //
+                //
+                //
+                // Input signature:
+                //
+                // Name                 Index   Mask Register SysValue Format   Used
+                // -------------------- ----- ------ -------- -------- ------ ------
+                // POSITION                 0   xyz         0     NONE  float   xyz 
+                // NORMAL                   0   xyz         1     NONE  float   xyz 
+                // TEXCOORD                 0   xy          2     NONE  float   xy  
+                //
+                //
+                // Output signature:
+                //
+                // Name                 Index   Mask Register SysValue Format   Used
+                // -------------------- ----- ------ -------- -------- ------ ------
+                // SV_POSITION              0   xyzw        0      POS  float   xyzw
+                // POSITION                 0   xyz         1     NONE  float   xyz 
+                // NORMAL                   0   xyz         2     NONE  float   xyz 
+                // TEXCOORD                 0   xy          3     NONE  float   xy  
+                //
+                vs_5_0
+                dcl_globalFlags refactoringAllowed
+                dcl_constantbuffer cb0[14], immediateIndexed
+                dcl_input v0.xyz
+                dcl_input v1.xyz
+                dcl_input v2.xy
+                dcl_output_siv o0.xyzw, position
+                dcl_output o1.xyz
+                dcl_output o2.xyz
+                dcl_output o3.xy
+                dcl_temps 5
+                
+                #line 77 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                mov r0.xyz, v0.xyzx
+                mov r0.w, l(1.000000)
+                dp4 r1.x, r0.xyzw, cb0[0].xyzw  // vout<4:NaN:Inf>
+                dp4 r1.y, r0.xyzw, cb0[1].xyzw  // vout<5:NaN:Inf>
+                dp4 r1.z, r0.xyzw, cb0[2].xyzw  // vout<6:NaN:Inf>
+                dp3 r2.x, v1.xyzx, cb0[4].xyzx  // vout<7:NaN:Inf>
+                dp3 r2.y, v1.xyzx, cb0[5].xyzx  // vout<8:NaN:Inf>
+                dp3 r2.z, v1.xyzx, cb0[6].xyzx  // vout<9:NaN:Inf>
+                
+                #line 81
+                dp4 r3.x, r0.xyzw, cb0[8].xyzw  // vout<0:NaN:Inf>
+                dp4 r3.y, r0.xyzw, cb0[9].xyzw  // vout<1:NaN:Inf>
+                dp4 r3.z, r0.xyzw, cb0[10].xyzw  // vout<2:NaN:Inf>
+                dp4 r3.w, r0.xyzw, cb0[11].xyzw  // vout<3:NaN:Inf>
+                
+                #line 84
+                mov r0.xy, v2.xyxx
+                mov r0.zw, l(0,0,0,1.000000)
+                dp4 r4.x, r0.xyzw, cb0[12].xyzw  // vout<10:NaN:Inf>
+                dp4 r4.y, r0.xyzw, cb0[13].xyzw  // vout<11:NaN:Inf>
+                mov o0.xyzw, r3.xyzw  // VS<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                mov o1.xyz, r1.xyzx  // VS<4:NaN:Inf,5:NaN:Inf,6:NaN:Inf>
+                mov o2.xyz, r2.xyzx  // VS<7:NaN:Inf,8:NaN:Inf,9:NaN:Inf>
+                mov o3.xy, r4.xyxx  // VS<10:NaN:Inf,11:NaN:Inf>
+                ret 
+                // Approximately 21 instruction slots used
+                            
+            };
+            GeometryShader = NULL;
+            PixelShader = asm {
+                //
+                // Generated by Microsoft (R) HLSL Shader Compiler 9.29.952.3111
+                //
+                //
+                // Buffer Definitions: 
+                //
+                // cbuffer cbPerFrame
+                // {
+                //
+                //   struct DirectionalLight
+                //   {
+                //       
+                //       float4 Ambient;                // Offset:    0
+                //       float4 Diffuse;                // Offset:   16
+                //       float4 Specular;               // Offset:   32
+                //       float3 Direction;              // Offset:   48
+                //       float pad;                     // Offset:   60
+                //
+                //   } gDirLights[3];                   // Offset:    0 Size:   192
+                //   float3 gEyePosW;                   // Offset:  192 Size:    12
+                //   float gFogStart;                   // Offset:  204 Size:     4 [unused]
+                //   float gFogRange;                   // Offset:  208 Size:     4 [unused]
+                //   float4 gFogColor;                  // Offset:  224 Size:    16 [unused]
+                //
+                // }
+                //
+                // cbuffer cbPerObject
+                // {
+                //
+                //   float4x4 gWorld;                   // Offset:    0 Size:    64 [unused]
+                //   float4x4 gWorldInvTranspose;       // Offset:   64 Size:    64 [unused]
+                //   float4x4 gWorldViewProj;           // Offset:  128 Size:    64 [unused]
+                //   float4x4 gTexTransform;            // Offset:  192 Size:    64 [unused]
+                //   
+                //   struct Material
+                //   {
+                //       
+                //       float4 Ambient;                // Offset:  256
+                //       float4 Diffuse;                // Offset:  272
+                //       float4 Specular;               // Offset:  288
+                //       float4 Reflect;                // Offset:  304
+                //
+                //   } gMaterial;                       // Offset:  256 Size:    64
+                //
+                // }
+                //
+                //
+                // Resource Bindings:
+                //
+                // Name                                 Type  Format         Dim Slot Elements
+                // ------------------------------ ---------- ------- ----------- ---- --------
+                // samAnisotropic                    sampler      NA          NA    0        1
+                // gFlareAlphaMap                    texture  float4          2d    0        1
+                // gFlareMap                         texture  float4          2d    1        1
+                // cbPerFrame                        cbuffer      NA          NA    0        1
+                // cbPerObject                       cbuffer      NA          NA    1        1
+                //
+                //
+                //
+                // Input signature:
+                //
+                // Name                 Index   Mask Register SysValue Format   Used
+                // -------------------- ----- ------ -------- -------- ------ ------
+                // SV_POSITION              0   xyzw        0      POS  float       
+                // POSITION                 0   xyz         1     NONE  float   xyz 
+                // NORMAL                   0   xyz         2     NONE  float   xyz 
+                // TEXCOORD                 0   xy          3     NONE  float   xy  
+                //
+                //
+                // Output signature:
+                //
+                // Name                 Index   Mask Register SysValue Format   Used
+                // -------------------- ----- ------ -------- -------- ------ ------
+                // SV_Target                0   xyzw        0   TARGET  float   xyzw
+                //
+                ps_5_0
+                dcl_globalFlags refactoringAllowed
+                dcl_constantbuffer cb0[13], immediateIndexed
+                dcl_constantbuffer cb1[19], immediateIndexed
+                dcl_sampler s0, mode_default
+                dcl_resource_texture2d (float,float,float,float) t0
+                dcl_resource_texture2d (float,float,float,float) t1
+                dcl_input_ps linear v1.xyz
+                dcl_input_ps linear v2.xyz
+                dcl_input_ps linear v3.xy
+                dcl_output o0.xyzw
+                dcl_temps 14
+                
+                #line 92 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                dp3 r0.x, v2.xyzx, v2.xyzx
+                rsq r0.x, r0.x
+                mul r0.xyz, r0.xxxx, v2.xyzx  // pin<7:NaN:Inf,8:NaN:Inf,9:NaN:Inf>
+                
+                #line 95
+                mov r1.xyz, -v1.xyzx
+                add r1.xyz, r1.xyzx, cb0[12].xyzx  // toEye<0:Inf,1:Inf,2:Inf>
+                
+                #line 98
+                dp3 r0.w, r1.xyzx, r1.xyzx
+                sqrt r0.w, r0.w  // distToEye<0:NaN:Inf>
+                
+                #line 101
+                div r1.xyz, r1.xyzx, r0.wwww  // toEye<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 120
+                sample_indexable(texture2d)(float,float,float,float) r2.xyzw, v3.xyxx, t1.xyzw, s0  // flareColor<0:Inf,1:Inf,2:Inf,3:Inf>
+                sample_indexable(texture2d)(float,float,float,float) r3.xyzw, v3.xyxx, t0.xyzw, s0  // flareAlphaColor<0:Inf,1:Inf,2:Inf,3:Inf>
+                mul r2.xyzw, r2.xyzw, r3.xyzw  // texColor<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf,3:NaN:Inf>
+                
+                #line 143
+                nop 
+                mov r3.xyz, cb1[16].xyzx  // mat<0,1,2>
+                mov r4.xyz, cb1[17].xyzx  // mat<4,5,6>
+                mov r5.xyzw, cb1[18].xyzw  // mat<8,9,10,11>
+                mov r6.xyz, cb0[0].xyzx  // L<0,1,2>
+                mov r7.xyz, cb0[1].xyzx  // L<4,5,6>
+                mov r8.xyz, cb0[2].xyzx  // L<8,9,10>
+                mov r9.xyz, cb0[3].xyzx  // L<12,13,14>
+                mov r0.xyz, r0.xyzx  // normal<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                mov r1.xyz, r1.xyzx  // toEye<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 70 "LightHelper.fx"
+                mov r9.xyz, -r9.xyzx  // lightVec<0,1,2>
+                
+                #line 73
+                mul r6.xyz, r3.xyzx, r6.xyzx  // ambient<0:Inf,1:Inf,2:Inf>
+                
+                #line 78
+                dp3 r0.w, r9.xyzx, r0.xyzx  // diffuseFactor<0:NaN:Inf>
+                
+                #line 82
+                lt r1.w, l(0.000000), r0.w
+                mov r9.xyz, -r9.xyzx
+                dp3 r3.w, r9.xyzx, r0.xyzx
+                add r3.w, r3.w, r3.w
+                mov r3.w, -r3.w
+                mul r10.xyz, r0.xyzx, r3.wwww
+                add r9.xyz, r9.xyzx, r10.xyzx  // v<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                dp3 r3.w, r9.xyzx, r1.xyzx
+                max r3.w, r3.w, l(0.000000)
+                log r3.w, r3.w
+                mul r3.w, r3.w, r5.w
+                exp r3.w, r3.w  // specFactor<0:NaN:Inf>
+                mul r9.xyz, r4.xyzx, r0.wwww
+                mul r7.xyz, r7.xyzx, r9.xyzx  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                mul r9.xyz, r5.xyzx, r3.wwww
+                mul r8.xyz, r8.xyzx, r9.xyzx  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 82
+                movc r7.xyz, r1.wwww, r7.xyzx, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                movc r8.xyz, r1.wwww, r8.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 143 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                mov r6.xyz, r6.xyzx  // A<0:Inf,1:Inf,2:Inf>
+                mov r7.xyz, r7.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                mov r8.xyz, r8.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 146
+                add r6.xyz, r6.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // ambient<0:Inf,1:Inf,2:Inf>
+                add r7.xyz, r7.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                add r8.xyz, r8.xyzx, l(0.000000, 0.000000, 0.000000, 0.000000)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 143
+                nop 
+                mov r9.xyz, cb0[4].xyzx  // L<0,1,2>
+                mov r10.xyz, cb0[5].xyzx  // L<4,5,6>
+                mov r11.xyz, cb0[6].xyzx  // L<8,9,10>
+                mov r12.xyz, cb0[7].xyzx  // L<12,13,14>
+                
+                #line 70 "LightHelper.fx"
+                mov r12.xyz, -r12.xyzx  // lightVec<0,1,2>
+                
+                #line 73
+                mul r9.xyz, r3.xyzx, r9.xyzx  // ambient<0:Inf,1:Inf,2:Inf>
+                
+                #line 78
+                dp3 r0.w, r12.xyzx, r0.xyzx  // diffuseFactor<0:NaN:Inf>
+                
+                #line 82
+                lt r1.w, l(0.000000), r0.w
+                mov r12.xyz, -r12.xyzx
+                dp3 r3.w, r12.xyzx, r0.xyzx
+                add r3.w, r3.w, r3.w
+                mov r3.w, -r3.w
+                mul r13.xyz, r0.xyzx, r3.wwww
+                add r12.xyz, r12.xyzx, r13.xyzx  // v<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                dp3 r3.w, r12.xyzx, r1.xyzx
+                max r3.w, r3.w, l(0.000000)
+                log r3.w, r3.w
+                mul r3.w, r3.w, r5.w
+                exp r3.w, r3.w  // specFactor<0:NaN:Inf>
+                mul r12.xyz, r4.xyzx, r0.wwww
+                mul r10.xyz, r10.xyzx, r12.xyzx  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                mul r12.xyz, r5.xyzx, r3.wwww
+                mul r11.xyz, r11.xyzx, r12.xyzx  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 82
+                movc r10.xyz, r1.wwww, r10.xyzx, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                movc r11.xyz, r1.wwww, r11.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 143 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                mov r9.xyz, r9.xyzx  // A<0:Inf,1:Inf,2:Inf>
+                mov r10.xyz, r10.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                mov r11.xyz, r11.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 146
+                add r6.xyz, r6.xyzx, r9.xyzx  // ambient<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                add r7.xyz, r7.xyzx, r10.xyzx  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                add r8.xyz, r8.xyzx, r11.xyzx  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 143
+                nop 
+                mov r9.xyz, cb0[8].xyzx  // L<0,1,2>
+                mov r10.xyz, cb0[9].xyzx  // L<4,5,6>
+                mov r11.xyz, cb0[10].xyzx  // L<8,9,10>
+                mov r12.xyz, cb0[11].xyzx  // L<12,13,14>
+                
+                #line 70 "LightHelper.fx"
+                mov r12.xyz, -r12.xyzx  // lightVec<0,1,2>
+                
+                #line 73
+                mul r3.xyz, r3.xyzx, r9.xyzx  // ambient<0:Inf,1:Inf,2:Inf>
+                
+                #line 78
+                dp3 r0.w, r12.xyzx, r0.xyzx  // diffuseFactor<0:NaN:Inf>
+                
+                #line 82
+                lt r1.w, l(0.000000), r0.w
+                mov r9.xyz, -r12.xyzx
+                dp3 r3.w, r9.xyzx, r0.xyzx
+                add r3.w, r3.w, r3.w
+                mov r3.w, -r3.w
+                mul r0.xyz, r0.xyzx, r3.wwww
+                add r0.xyz, r9.xyzx, r0.xyzx  // v<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                dp3 r0.x, r0.xyzx, r1.xyzx
+                max r0.x, r0.x, l(0.000000)
+                log r0.x, r0.x
+                mul r0.x, r0.x, r5.w
+                exp r0.x, r0.x  // specFactor<0:NaN:Inf>
+                mul r0.yzw, r4.xxyz, r0.wwww
+                mul r0.yzw, r10.xxyz, r0.yyzw  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                mul r1.xyz, r5.xyzx, r0.xxxx
+                mul r1.xyz, r11.xyzx, r1.xyzx  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 82
+                movc r0.xyz, r1.wwww, r0.yzwy, l(0,0,0,0)  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                movc r1.xyz, r1.wwww, r1.xyzx, l(0,0,0,0)  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 143 "C:\Users\zhaohaoyang\Desktop\d3d11CodeSet\Chapter 8 Texturing\Crate\FX\Basic.fx"
+                mov r3.xyz, r3.xyzx  // A<0:Inf,1:Inf,2:Inf>
+                mov r0.xyz, r0.xyzx  // D<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                mov r1.xyz, r1.xyzx  // S<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 146
+                add r3.xyz, r3.xyzx, r6.xyzx  // ambient<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                add r0.xyz, r0.xyzx, r7.xyzx  // diffuse<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                add r1.xyz, r1.xyzx, r8.xyzx  // spec<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 152
+                add r0.xyz, r0.xyzx, r3.xyzx
+                mul r0.xyz, r0.xyzx, r2.xyzx
+                add r0.xyz, r1.xyzx, r0.xyzx  // litColor<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                
+                #line 156
+                mul r0.w, r2.w, cb1[17].w  // litColor<3:NaN:Inf>
+                mov o0.xyz, r0.xyzx  // PS<0:NaN:Inf,1:NaN:Inf,2:NaN:Inf>
+                mov o0.w, r0.w  // PS<3:NaN:Inf>
+                ret 
+                // Approximately 119 instruction slots used
                             
             };
         }

@@ -28,6 +28,9 @@ cbuffer cbPerObject
 // Nonnumeric values cannot be added to a cbuffer.
 Texture2D gDiffuseMap;
 
+Texture2D gFlareAlphaMap;
+Texture2D gFlareMap;
+
 SamplerState samAnisotropic
 {
 	//zhy 疑问
@@ -41,8 +44,14 @@ SamplerState samAnisotropic
 	Filter = ANISOTROPIC;
 	MaxAnisotropy = 4;
 
-	AddressU = WRAP;
-	AddressV = WRAP;
+	//AddressU = WRAP;
+	//AddressV = WRAP;
+
+	//zhy 疑问
+	//HLSL里的这些枚举值们，用起来像是大小写不敏感的
+	//后续可求证下
+	AddressU = Border;
+	AddressV = Border;
 };
 
 struct VertexIn
@@ -77,7 +86,7 @@ VertexOut VS(VertexIn vin)
 	return vout;
 }
  
-float4 PS(VertexOut pin, uniform int gLightCount, uniform bool gUseTexure) : SV_Target
+float4 PS(VertexOut pin, uniform int gLightCount, uniform bool gUseTexure, uniform int gDrawType) : SV_Target
 {
 	// Interpolating normal can unnormalize it, so normalize it.
     pin.NormalW = normalize(pin.NormalW);
@@ -96,7 +105,22 @@ float4 PS(VertexOut pin, uniform int gLightCount, uniform bool gUseTexure) : SV_
     if(gUseTexure)
 	{
 		// Sample texture.
-		texColor = gDiffuseMap.Sample( samAnisotropic, pin.Tex );
+		if (gDrawType == 0 )
+		{
+			//不做纹理采样
+		}
+		else if	(gDrawType == 1)
+		{
+			//FireAni
+			texColor = gDiffuseMap.Sample( samAnisotropic, pin.Tex );
+		}
+		else if (gDrawType == 2)
+		{
+			//FireBall
+			float4 flareColor = gFlareMap.Sample(samAnisotropic, pin.Tex);
+			float4 flareAlphaColor = gFlareAlphaMap.Sample(samAnisotropic, pin.Tex);
+			texColor = flareColor * flareAlphaColor;
+		}
 	}
 	 
 	//
@@ -140,7 +164,7 @@ technique11 Light1
     {
         SetVertexShader( CompileShader( vs_5_0, VS() ) );
 		SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS(1, false) ) );
+        SetPixelShader( CompileShader( ps_5_0, PS(1, false, 0) ) );
     }
 }
 
@@ -150,7 +174,7 @@ technique11 Light2
     {
         SetVertexShader( CompileShader( vs_5_0, VS() ) );
 		SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS(2, false) ) );
+        SetPixelShader( CompileShader( ps_5_0, PS(2, false, 0) ) );
     }
 }
 
@@ -160,46 +184,66 @@ technique11 Light3
     {
         SetVertexShader( CompileShader( vs_5_0, VS() ) );
 		SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS(3, false) ) );
+        SetPixelShader( CompileShader( ps_5_0, PS(3, false, 0) ) );
     }
 }
 
-technique11 Light0Tex
+technique11 Light1TexFireAni
 {
     pass P0
     {
         SetVertexShader( CompileShader( vs_5_0, VS() ) );
 		SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS(0, true) ) );
+        SetPixelShader( CompileShader( ps_5_0, PS(1, true, 1) ) );
     }
 }
 
-technique11 Light1Tex
+technique11 Light2TexFireAni
 {
     pass P0
     {
         SetVertexShader( CompileShader( vs_5_0, VS() ) );
 		SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS(1, true) ) );
+        SetPixelShader( CompileShader( ps_5_0, PS(2, true, 1) ) );
     }
 }
 
-technique11 Light2Tex
+technique11 Light3TexFireAni
 {
     pass P0
     {
         SetVertexShader( CompileShader( vs_5_0, VS() ) );
 		SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS(2, true) ) );
+        SetPixelShader( CompileShader( ps_5_0, PS(3, true, 1) ) );
     }
 }
 
-technique11 Light3Tex
+technique11 Light1TexFireBall
 {
     pass P0
     {
         SetVertexShader( CompileShader( vs_5_0, VS() ) );
 		SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS(3, true) ) );
+        SetPixelShader( CompileShader( ps_5_0, PS(1, true, 2) ) );
+    }
+}
+
+technique11 Light2TexFireBall
+{
+    pass P0
+    {
+        SetVertexShader( CompileShader( vs_5_0, VS() ) );
+		SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_5_0, PS(2, true, 2) ) );
+    }
+}
+
+technique11 Light3TexFireBall
+{
+    pass P0
+    {
+        SetVertexShader( CompileShader( vs_5_0, VS() ) );
+		SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_5_0, PS(3, true, 2) ) );
     }
 }
